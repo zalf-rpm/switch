@@ -111,6 +111,7 @@ def run_producer(server = {"server": None, "port": None}, shared_id = None):
 
     print("config:", config)
 
+
     # select paths 
     paths = PATHS[config["mode"]]
     # open soil db connection
