@@ -91,7 +91,6 @@ TEMPLATE_PATH_HARVEST = "{path_to_data_dir}/projects/monica-germany/ILR_SEED_HAR
 
 gdf = gpd.read_file(NUTS3_REGIONS)
 
-
 DEBUG_DONOT_SEND = False
 DEBUG_WRITE = False
 DEBUG_ROWS = 10
@@ -107,7 +106,7 @@ def run_producer(server = {"server": None, "port": None}, shared_id = None):
     #config_and_no_data_socket = context.socket(zmq.PUSH)
 
     config = {
-        "mode": "ow-local-remote", ## local:"cj-local-remote" remote "mbm-local-remote"
+        "mode": "mbm-local-remote", ## local:"cj-local-remote" remote "mbm-local-remote"
         "server-port": server["port"] if server["port"] else "6666", ## local: 6667, remote 6666
         "server": server["server"] if server["server"] else "login01.cluster.zalf.de",
         "start-row": "0", 
@@ -129,7 +128,6 @@ def run_producer(server = {"server": None, "port": None}, shared_id = None):
                 config[k] = v
 
     print("config:", config)
-
 
     # select paths 
     paths = PATHS[config["mode"]]
@@ -155,9 +153,6 @@ def run_producer(server = {"server": None, "port": None}, shared_id = None):
 
     # Load grids
     ## note numpy is able to load from a compressed file, ending with .gz or .bz2
-
-    # Reads the soil data from an ASCII grid file, extracts the CRS information, 
-    # creates a transformer if needed, reads the metadata, and loads the soil data into a NumPy array for further processing.
 
     # soil data
     path_to_soil_grid = paths["path-to-data-dir"] + DATA_GRID_SOIL
@@ -353,13 +348,10 @@ def run_producer(server = {"server": None, "port": None}, shared_id = None):
             elif int(config["end-row"]) > 0 and srow > int(config["end-row"]):
                 break
 
-            for srow in range(0, srows):
-                for scol in range(0, scols):
-                    #if not mask[srow, scol]:
-                    #    continue # Skip this pixel as it is not part of the specific region
-                    soil_id = int(soil_grid[srow, scol])
-                    if soil_id == nodata_value:
-                        continue
+            for scol in range(0, scols):
+                soil_id = int(soil_grid[srow, scol])
+                if soil_id == nodata_value:
+                    continue
 
                 #get coordinate of clostest climate element of real soil-cell
                 sh = yllcorner + (scellsize / 2) + (srows - srow - 1) * scellsize
