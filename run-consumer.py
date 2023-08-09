@@ -305,7 +305,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
 
         leave = False
 
-        if not write_normal_output_files and not msg["customId"]["bgr"]:
+        if not write_normal_output_files:
             custom_id = msg["customId"]
             setup_id = custom_id["setup_id"]
             is_nodata = custom_id["nodata"]
@@ -376,7 +376,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                              or (0 <= data["end_row"] < data["next-row"])):
                     process_message.setup_count += 1
 
-        elif write_normal_output_files or msg["customId"]["bgr"]:
+        elif write_normal_output_files:
 
             if msg.get("type", "") in ["jobs-per-cell", "no-data", "setup_data"]:
                 # print "ignoring", result.get("type", "")
