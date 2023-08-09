@@ -78,9 +78,8 @@ def create_output(msg):
     return cm_count_to_vals
 
 
-def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, path_to_csv_output_dir, setup_id, is_bgr,
-                       is_yields, is_pheno):
-    "write grids row by row"
+def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, path_to_csv_output_dir, setup_id):
+    """write grids row by row"""
 
     if not hasattr(write_row_to_grids, "nodata_row_count"):
         write_row_to_grids.nodata_row_count = defaultdict(lambda: 0)
@@ -88,103 +87,10 @@ def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, pat
 
     make_dict_nparr = lambda: defaultdict(lambda: np.full((ncols,), -9999, dtype=np.float))
 
-    if is_bgr:
-        output_grids = {}
-        for i in range(1, 21):
-            output_grids[f'Mois_{i}'] = {"data": make_dict_nparr(), "cast-to": "float", "digits": 4}
-            output_grids[f'STemp_{i}'] = {"data": make_dict_nparr(), "cast-to": "float", "digits": 4}
-        output_keys = ["Mois", "STemp"]
-    elif is_yields:
-        output_grids = {
-            "Yield": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1}
-            # "tradefavg": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "heatredavg": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "frostredavg": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "oxredavg": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "precipsum": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "nstressavg": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "heatredlast": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "frostredlast": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2}
-            # "nstresslast": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "oxredlast": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "tradeflast": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2}
-            # "HeatRed": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "FrostRed": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 2},
-            # "Yield-31-7": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 1},
-            # "tavg-avg": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 1},
-            # "tmin-avg": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 1},
-            # "tmin-min": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 1},
-            # "tmax-avg": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 1},
-            # "tmax-max": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 1},
-            # "precip-sum": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 1},
-            # "Pot_ET": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 1}
-        }
-        output_keys = list(output_grids.keys())
-    elif is_pheno:
-        output_grids = {
-            # "Yield": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 1},
-            # "sdoy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            # "s1doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            # "s2doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            # "sedoy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            # "s3doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            # "s4doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            # "s5doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            # "s6doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            "s7doy": {"data": make_dict_nparr(), "cast-to": "int"}
-            # "hdoy": {"data" : make_dict_nparr(), "cast-to": "int"},
-        }
-        output_keys = list(output_grids.keys())
-    else:
-        output_grids = {
-            # "Yield": {"data" : make_dict_nparr(), "cast-to": "float", "digits": 1},
-
-            # "sdoy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            "ssm03": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "ssm36": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "ssm69": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-
-            # "s2doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            "s2sm03": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s2sm36": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s2sm69": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-
-            # "sedoy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            "sesm03": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "sesm36": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "sesm69": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-
-            # "s3doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            "s3sm03": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s3sm36": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s3sm69": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-
-            # "s4doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            "s4sm03": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s4sm36": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s4sm69": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-
-            # "s5doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            "s5sm03": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s5sm36": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s5sm69": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-
-            # "s6doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            "s6sm03": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s6sm36": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s6sm69": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-
-            # "s7doy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            "s7sm03": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s7sm36": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "s7sm69": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-
-            # "hdoy": {"data" : make_dict_nparr(), "cast-to": "int"},
-            "hsm03": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "hsm36": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-            "hsm69": {"data": make_dict_nparr(), "cast-to": "float", "digits": 4},
-        }
-        output_keys = list(output_grids.keys())
+    output_grids = {
+        "Yield": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+    }
+    output_keys = list(output_grids.keys())
 
     cmc_to_crop = {}
 
@@ -402,10 +308,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
         if not write_normal_output_files and not msg["customId"]["bgr"]:
             custom_id = msg["customId"]
             setup_id = custom_id["setup_id"]
-            is_bgr = custom_id["bgr"]
-            is_yields = custom_id["yields"]
             is_nodata = custom_id["nodata"]
-            is_pheno = custom_id["pheno"]
 
             data = setup_id_to_data[setup_id]
 
@@ -459,7 +362,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                             exit(1)
 
                 write_row_to_grids(data["row-col-data"], data["next-row"], data["ncols"], data["header"],
-                                   path_to_out_dir, path_to_csv_out_dir, setup_id, is_bgr, is_yields, is_pheno)
+                                   path_to_out_dir, path_to_csv_out_dir, setup_id)
 
                 debug_msg = "wrote row: " + str(data["next-row"]) + " next-row: " + str(
                     data["next-row"] + 1) + " rows unwritten: " + str(list(data["row-col-data"].keys()))
