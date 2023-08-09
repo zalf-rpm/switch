@@ -255,8 +255,9 @@ def run_producer(server = {"server": None, "port": None}, shared_id = None):
         mask = create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid_ow)
 
         # Apply the soil mask to the soil grid
+        soil_grid_copy = soil_grid.copy()
         soil_grid[mask == False] = -8888
-
+        soil_grid[soil_grid_copy == -9999] = -9999
 
         # add crop id from setup file
         try:
@@ -378,10 +379,7 @@ def run_producer(server = {"server": None, "port": None}, shared_id = None):
                         socket.send_json(env_template)
                         # print("sent nodata env ", sent_env_count, " customId: ", env_template["customId"])
                         sent_env_count += 1
-
                     continue
-
-
 
                 tcoords = {}
 
