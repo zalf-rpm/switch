@@ -1,14 +1,23 @@
 {
-	"__note__": "01/2020 : Final version for simulations of future plant growth. There is a different version for historic plant growth because of different headers.",
+	"__note__": "09/2023 : Version for simulations of historic and current plant growth. There is a different version for historic plant growth because of different headers.",
 	"crop.json": "crop.json",
 	"site.json": "site.json",
 	"climate.csv": "",
 
 	"climate.csv-options": {
-        "no-of-climate-file-header-lines": 2,
-        "csv-separator": ",",
+		"_start-date": "1991-01-01",
+        "_end-date": "2017-12-31",
+        "no-of-climate-file-header-lines": 1,
+        "csv-separator": "\t",
         "header-to-acd-names": {
-			"windspeed": "wind"
+			"Date": "iso-date",
+			"TempMin": "tmin",
+			"TempMean": "tavg",
+			"TempMax": "tmax",
+            "Precipitation": "precip",
+            "RelHumCalc": ["relhumid", "*", 100.0],
+			"Radiation": ["globrad", "/", 1000.0],
+			"Windspeed": "windspeed"
         }
     },
 	
