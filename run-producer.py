@@ -77,10 +77,11 @@ DATA_GRID_SLOPE = "germany/slope_1000_25832_etrs89-utm32n.asc"
 DATA_GRID_LAND_USE = "germany/landuse_1000_31469_gk5.asc"
 DATA_GRID_SOIL = "germany/buek200_1000_25832_etrs89-utm32n.asc"
 DATA_GRID_SOIL_OW = "germany/buek200_1000_25832_etrs89-utm32n_OW.asc"
+DATA_GRID_CROPS = "germany/OWgermany-crop-ww_1000_25832_etrs89-utm32n.asc" # Added as a cropmap for winter wheat OW
 # ORIGINAL DATA_GRID_SOIL = "germany/buek200_1000_25832_etrs89-utm32n.asc"
 # DATA_GRID_CROPS = "germany/crops-all2017-2019_1000_25832_etrs89-utm32n.asc"
 # DATA_GRID_CROPS = "germany/dwd-stations-pheno_1000_25832_etrs89-utm32n.asc"
-DATA_GRID_CROPS = "germany/germany-complete_1000_25832_etrs89-utm32n.asc"
+# DATA_GRID_CROPS = "germany/germany-complete_1000_25832_etrs89-utm32n.asc"
 TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/latlon-to-rowcol.json"
 TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/row-{crow}/col-{ccol}.csv"
 
@@ -96,6 +97,9 @@ DEBUG_WRITE = False
 DEBUG_ROWS = 10
 DEBUG_WRITE_FOLDER = "./debug_out"
 DEBUG_WRITE_CLIMATE = False
+
+## Add an argument in the run_producer function and make a loop with changing of the value of the additional parameter (sensitivity analysis)
+## Make a list of the parameter values first
 
 # commandline parameters e.g "server=localhost port=6666 shared_id=2"
 def run_producer(server = {"server": None, "port": None}, shared_id = None):
