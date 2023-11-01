@@ -342,7 +342,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                                 sdata["year_to_abbiom"][int(vals["Year"])].append(vals["AbBiom"])
 
                 if sdata["no_of_envs_expected"] == sdata["envs_received"]:
-                    path_to_out_dir = config["out"] + str(setup_id) + "/"
+                    path_to_out_dir = config["out"]  # + str(setup_id) + "/"
                     print(path_to_out_dir)
                     if not sdata["out_dir_exists"]:
                         if os.path.isdir(path_to_out_dir) and os.path.exists(path_to_out_dir):
@@ -364,7 +364,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                                 if no_of_values > 0:
                                     year_to_avg_values[year][name] = round(sum(values) / no_of_values, 2)
 
-                        path_to_out_file = f"{path_to_out_dir}/sensitivity.csv"
+                        path_to_out_file = f"{path_to_out_dir}/setup-{setup_id}_sensitivity.csv"
                         with open(path_to_out_file, "a") as _:
                             _.write(f"Year, Yield, AbBiom, {sdata['param_name']}\n")
                             for year, avg_vals in year_to_avg_values.items():
