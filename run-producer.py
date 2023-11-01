@@ -120,8 +120,6 @@ DEBUG_WRITE_CLIMATE = False
 
 # commandline parameters e.g "server=localhost port=6666 shared_id=2"
 def run_producer(server={"server": None, "port": None}, shared_id=None):
-    "main"
-
     context = zmq.Context()
     socket = context.socket(zmq.PUSH)  # pylint: disable=no-member
     # config_and_no_data_socket = context.socket(zmq.PUSH)
@@ -160,7 +158,15 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
     # read setup from csv file
     setups = Mrunlib.read_sim_setups(config["setups-file"])
-    run_setups = json.loads(config["run-setups"])
+    rs_ranges = config["run-setups"][1:-1].split(",")
+    run_setups = []
+    for rsr in rs_ranges:
+        rs_r = rsr.split("-")
+        if 1 < len(rs_r) <= 2:
+            run_setups.extend(range(int(rs_r[0]), int(rs_r[1])+1))
+        elif len(rs_r) == 1:
+            run_setups.append(int(rs_r[0]))
+    #run_setups = json.loads(config["run-setups"])
     print("read sim setups: ", config["setups-file"])
 
     # transforms geospatial coordinates from one coordinate reference system to another
@@ -777,7 +783,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
             # print("crows/cols:", crows_cols)
         # cs__.close()
         stop_setup_time = time.perf_counter()
-        print("Setup ", sent_env_count, " envs took ", (stop_setup_time - start_setup_time), " seconds")
+        print("\nSetup ", sent_env_count, " envs took ", (stop_setup_time - start_setup_time), " seconds")
         sent_env_count = 0
 
     stop_time = time.perf_counter()
