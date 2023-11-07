@@ -395,7 +395,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                     if params and p_name:
                         if setup["param_index_in_array"]:
                             i = int(setup["param_index_in_array"])
-                            if type(params[p_name][i]) is list:
+                            if type(params[p_name][0]) is list:
                                 params[p_name][0][i] = p_value
                             else:
                                 params[p_name][i] = p_value
