@@ -360,7 +360,17 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         print("All Rows x Cols: " + str(srows) + "x" + str(scols))
         # cs__ = open("coord_mapping_etrs89-utm32n_to_wgs84-latlon.csv", "w")
         # cs__.write("row,col,center_25832_etrs89-utm32n_r,center_25832_etrs89-utm32n_h,center_lat,center_lon\n")
+
+        # for sensitivity analysis mode
         is_sensitivity_analysis = False
+        orig_params = None
+        if setup["species_param_name"]:
+            if not orig_params:
+                orig_params = copy.deepcopy(env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["species"])
+        elif setup["cultivar_param_name"]:
+            if not orig_params:
+                orig_params = copy.deepcopy(env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"])
+
         for srow in range(0, srows):
             print(srow, end=", ")
 
@@ -381,27 +391,26 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 crow, ccol = climate_data_interpolator(sr, sh)
 
                 # OW: clim4cast sensitivity analysis
-                p_value = None
+                p_value = p_name = params = None
                 if setup["species_param_name"]:
                     params = env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["species"]
                     p_name = setup["species_param_name"]
                 elif setup["cultivar_param_name"]:
                     params = env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"]
                     p_name = setup["cultivar_param_name"]
-                if setup["coeff"]:
+                if setup["coeff"] and p_name and params and orig_params:
                     # Case 3: List with a coefficient
                     coefficient = float(setup["coeff"])
                     is_sensitivity_analysis = True
-                    if type(params[p_name]) is list and len(params[p_name]) > 0:
-                        if type(params[p_name][0]) is list:
-                            params[p_name][0] = list([float(val) * coefficient for val in params[p_name][0]])
+                    if type(orig_params[p_name]) is list and len(orig_params[p_name]) > 0:
+                        if type(orig_params[p_name][0]) is list:
+                            params[p_name][0] = list([float(val) * coefficient for val in orig_params[p_name][0]])
                         else:
-                            params[p_name] = list([float(val) * coefficient for val in params[p_name]])
+                            params[p_name] = list([float(val) * coefficient for val in orig_params[p_name]])
                 elif setup["param_value"]:
                     # Case 1: Single value or Case 2: List without coefficient
                     p_value = float(setup["param_value"])
                     is_sensitivity_analysis = True
-                    p_name = params = None
                     if params and p_name:
                         if setup["param_index_in_array"]:
                             i = int(setup["param_index_in_array"])
