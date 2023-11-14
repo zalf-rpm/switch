@@ -391,6 +391,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 if setup["coeff"]:
                     # Case 3: List with a coefficient
                     coefficient = float(setup["coeff"])
+                    is_sensitivity_analysis = True
                     if type(params[p_name]) is list and len(params[p_name]) > 0:
                         if type(params[p_name][0]) is list:
                             params[p_name][0] = list([float(val) * coefficient for val in params[p_name][0]])
