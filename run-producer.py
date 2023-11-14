@@ -382,7 +382,16 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
                 # OW: clim4cast sensitivity analysis
                 p_name = p_value = None
-                if setup["param_value"]:
+                if setup["coeff"]:
+                    # Case 3: List with a coefficient
+                    coefficient = float(setup["coeff"])
+                    if type(params[p_name]) is list and len(params[p_name]) > 0:
+                        if type(params[p_name][0]) is list:
+                            params[p_name][0] = list([float(val) * coefficient for val in params[p_name][0]])
+                        else:
+                            params[p_name] = list([float(val) * coefficient for val in params[p_name]])
+                else:
+                    # Case 1: Single value or Case 2: List without coefficient
                     p_value = float(setup["param_value"])
                     is_sensitivity_analysis = True
                     p_name = params = None
