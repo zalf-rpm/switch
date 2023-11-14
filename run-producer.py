@@ -381,7 +381,13 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 crow, ccol = climate_data_interpolator(sr, sh)
 
                 # OW: clim4cast sensitivity analysis
-                p_name = p_value = None
+                p_value = None
+                if setup["species_param_name"]:
+                    params = env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["species"]
+                    p_name = setup["species_param_name"]
+                elif setup["cultivar_param_name"]:
+                    params = env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"]
+                    p_name = setup["cultivar_param_name"]
                 if setup["coeff"]:
                     # Case 3: List with a coefficient
                     coefficient = float(setup["coeff"])
@@ -390,17 +396,11 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                             params[p_name][0] = list([float(val) * coefficient for val in params[p_name][0]])
                         else:
                             params[p_name] = list([float(val) * coefficient for val in params[p_name]])
-                else:
+                elif setup["param_value"]:
                     # Case 1: Single value or Case 2: List without coefficient
                     p_value = float(setup["param_value"])
                     is_sensitivity_analysis = True
                     p_name = params = None
-                    if setup["species_param_name"]:
-                        params = env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["species"]
-                        p_name = setup["species_param_name"]
-                    elif setup["cultivar_param_name"]:
-                        params = env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"]
-                        p_name = setup["cultivar_param_name"]
                     if params and p_name:
                         if setup["param_index_in_array"]:
                             i = int(setup["param_index_in_array"])
