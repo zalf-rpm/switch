@@ -1,0 +1,69 @@
+{
+  "crops": {
+    "maize": {
+      "is-winter-crop": true,
+      "cropParams": {
+        "species": {
+          "=": ["include-from-file", "crops/species/maize_africa.json"],
+          "AssimilateReallocation": 0,
+          "RootPenetrationRate": 0
+        },
+        "cultivar": {
+          "=": ["include-from-file", "crops/cultivars/grain-maize_africa.json"],
+          "MaxAssimilationRate": 0
+        }
+      },
+      "residueParams": ["include-from-file", "crops/residues/maize_africa.json"]
+    },
+    "millet": {
+      "is-winter-crop": true,
+      "cropParams": {
+        "species": {
+          "=": ["include-from-file", "crops/species/millet.json"],
+          "AssimilateReallocation": 0,
+          "RootPenetrationRate": 0
+        },
+        "cultivar": {
+          "=": ["include-from-file", "crops/cultivars/millet.json"],
+          "MaxAssimilationRate": 0
+        }
+      },
+      "residueParams": ["include-from-file", "crops/residues/millet.json"]
+    },
+    "sorghum": {
+      "is-winter-crop": true,
+      "cropParams": {
+        "species": {
+          "=": ["include-from-file", "crops/species/sorghum.json"],
+          "AssimilateReallocation": 0,
+          "RootPenetrationRate": 0
+        },
+        "cultivar": {
+          "=": ["include-from-file", "crops/cultivars/sorghum.json"],
+          "MaxAssimilationRate": 0
+        }
+      },
+      "residueParams": ["include-from-file", "crops/residues/sorghum.json"]
+    }
+  },
+  "cropRotation": [
+    {
+      "worksteps": [
+        {
+          "date": "0000-03-31",
+          "type": "Sowing",
+          "PlantDensity": 10,
+          "crop": ["ref", "crops", "maize"]
+        },
+        {
+          "type": "Harvest",
+          "date": "0000-10-31"
+        }
+      ]
+    }
+  ],
+  "CropParameters": {
+    "=": ["include-from-file", "general/crop.json"],
+    "__enable_vernalisation_factor_fix__": true
+  }
+}
