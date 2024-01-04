@@ -134,7 +134,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         "sim.json": "sim_final.json",
         "crop.json": "crop_final.json",
         "site.json": "site.json",
-        "setups-file": "sim_setups_OW.csv",
+        "setups-file": "sim_setups_calibration_OW.csv",
         "run-setups": "[1]",
         "shared_id": shared_id
     }
@@ -330,6 +330,13 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         # read template crop.json
         with open(setup.get("crop.json", config["crop.json"])) as _:
             crop_json = json.load(_)
+            # set value of calibration params
+            ps = crop_json["crops"][crop]["cropParams"]
+            for pname, pval in params.items():
+                if pname in ps["species"]:
+                    ps["species"][pname] = pval
+                elif pname in ps["cultivar"]:
+                    ps["cultivar"][pname] = pval            
 
         crop_json["CropParameters"]["__enable_vernalisation_factor_fix__"] = setup[
             "use_vernalisation_fix"] if "use_vernalisation_fix" in setup else False
