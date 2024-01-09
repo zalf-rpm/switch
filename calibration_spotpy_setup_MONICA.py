@@ -32,7 +32,7 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
 class spot_setup(object):
-    def __init__(self, user_params, observations, prod_writer, cons_reader, path_to_out, only_country_ids):
+    def __init__(self, user_params, observations, prod_writer, cons_reader, path_to_out, only_nuts3_region_ids):
         self.user_params = user_params
         self.params = []
         self.observations = observations
@@ -40,7 +40,7 @@ class spot_setup(object):
         self.prod_writer = prod_writer
         self.cons_reader = cons_reader
         self.path_to_out_file = path_to_out + "/spot_setup.out"
-        self.only_country_ids = only_country_ids
+        self.only_nuts3_region_ids = only_nuts3_region_ids
 
         if not os.path.exists(path_to_out):
             try:
@@ -55,8 +55,8 @@ class spot_setup(object):
         for par in user_params:
             par_name = par["name"]
             if "array" in par:
-                if re.search(r'\d', par["array"]):  # check if par["array"] contains numbers
-                    par_name += "_" + par["array"]  # spotpy does not allow two parameters to have the same name
+                par["name"] = f"{par_name}_{par['array']}"  # spotpy does not allow two parameters to have the same name
+                del par["array"]
             if "derive_function" not in par:  # spotpy does not care about derived params
                 self.params.append(spotpy.parameter.Uniform(**par))
 
@@ -66,7 +66,7 @@ class spot_setup(object):
     def simulation(self, vector):
         # vector = MaxAssimilationRate, AssimilateReallocation, RootPenetrationRate
         msg_content = dict(zip(vector.name, vector))
-        msg_content["only_country_ids"] = self.only_country_ids
+        msg_content["only_nuts3_region_ids"] = self.only_nuts3_region_ids
         out_ip = fbp_capnp.IP.new_message(content=json.dumps(msg_content))
         self.prod_writer.write(value=out_ip).wait()
         with open(self.path_to_out_file, "a") as _:
@@ -80,17 +80,21 @@ class spot_setup(object):
 
         in_ip = msg.value.as_struct(fbp_capnp.IP)
         s: str = in_ip.content.as_text()
-        country_id_and_year_to_avg_yield = json.loads(s)
+        nuts3_region_id_and_year_to_avg_yield = json.loads(s)
         # print("received monica results:", country_id_and_year_to_avg_yield, flush=True)
+
+        assert len(self.obs_flat_list) == len(nuts3_region_id_and_year_to_avg_yield)
 
         # remove all simulation results which are not in the observed list
         sim_list = []
         self.obs_flat_list = []
         for d in self.observations:
             key = f"{d['id']}|{d['year']}"
-            if key in country_id_and_year_to_avg_yield:
-                sim_list.append(country_id_and_year_to_avg_yield[key])
-                self.obs_flat_list.append(d["value"])
+            if key in nuts3_region_id_and_year_to_avg_yield:
+                if d["value"] < 0:
+                    sim_list.append(d["value"])
+                else:
+                    sim_list.append(nuts3_region_id_and_year_to_avg_yield[key])
 
         print("len(sim_list):", len(sim_list), "== len(self.obs_list):", len(self.obs_flat_list), flush=True)
         with open(self.path_to_out_file, "a") as _:

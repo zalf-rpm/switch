@@ -74,7 +74,7 @@ def run_consumer(server=None, port=None):
     socket.connect("tcp://" + config["server"] + ":" + config["port"])
     socket.RCVTIMEO = config["timeout"]
 
-    country_id_to_year_to_yields = defaultdict(lambda: defaultdict(list))
+    nuts3_region_id_to_year_to_yields = defaultdict(lambda: defaultdict(list))
 
     conman = common.ConnectionManager()
     writer = conman.try_connect(config["writer_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)  #None
@@ -96,30 +96,30 @@ def run_consumer(server=None, port=None):
                 #    _.write(f"received result customId: {custom_id}\n")
                 #print("received result customId:", custom_id)
 
-                country_id = custom_id["country_id"]
+                nuts3_region_id = custom_id["nuts3_region_id"]
 
                 for data in msg.get("data", []):
                     results = data.get("results", [])
                     for vals in results:
                         if "Year" in vals:
-                            country_id_to_year_to_yields[country_id][int(vals["Year"])].append(vals["Yield"])
+                            nuts3_region_id_to_year_to_yields[nuts3_region_id][int(vals["Year"])].append(vals["Yield"])
 
             if no_of_envs_expected == envs_received and writer:
                 with open(path_to_out_file, "a") as _:
                     _.write(f"{datetime.now()} last expected env received\n")
                 print("last expected env received")
-                country_id_and_year_to_avg_yield = {}
-                for country_id, rest in country_id_to_year_to_yields.items():
+                nuts3_region_id_and_year_to_avg_yield = {}
+                for nuts3_region_id, rest in nuts3_region_id_to_year_to_yields.items():
                     for year, yields in rest.items():
                         no_of_yields = len(yields)
                         if no_of_yields > 0:
-                            country_id_and_year_to_avg_yield[f"{country_id}|{year}"] = sum(yields) / no_of_yields
+                            nuts3_region_id_and_year_to_avg_yield[f"{nuts3_region_id}|{year}"] = sum(yields) / no_of_yields
 
-                out_ip = fbp_capnp.IP.new_message(content=json.dumps(country_id_and_year_to_avg_yield))
+                out_ip = fbp_capnp.IP.new_message(content=json.dumps(nuts3_region_id_and_year_to_avg_yield))
                 writer.write(value=out_ip).wait()
 
                 # reset and wait for next round
-                country_id_to_year_to_yields.clear()
+                nuts3_region_id_to_year_to_yields.clear()
                 no_of_envs_expected = None
                 envs_received = 0
 
