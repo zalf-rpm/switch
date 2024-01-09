@@ -447,7 +447,6 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                         process_message.setup_count += 1
 
         elif write_normal_output_files:
-
             if msg.get("type", "") in ["jobs-per-cell", "no-data", "setup_data"]:
                 # print "ignoring", result.get("type", "")
                 return
@@ -456,6 +455,9 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                   str(msg.get("customId", "")))
 
             custom_id = msg["customId"]
+            is_nodata = custom_id["nodata"]
+            if is_nodata:
+                return leave
             setup_id = custom_id["setup_id"]
             row = custom_id["srow"]
             col = custom_id["scol"]
@@ -491,7 +493,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                                                                        include_time_agg=False):
                             writer.writerow(row)
 
-                        for row in monica_io3.write_output(output_ids, results):
+                        for row in monica_io3.write_output_obj(output_ids, results):
                             writer.writerow(row)
 
                     writer.writerow([])
