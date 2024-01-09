@@ -1,0 +1,3 @@
+name,position in array,low,high,step,optguess,minbound,maxbound,derived params
+CropSpecificMaxRootingDepth,,0.8,2,,,,,
+VernalisationRequirement,,25,100,,,,,
