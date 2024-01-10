@@ -87,7 +87,6 @@ class spot_setup(object):
 
         # remove all simulation results which are not in the observed list
         sim_list = []
-        self.obs_flat_list = []
         for d in self.observations:
             key = f"{d['id']}|{d['year']}"
             if key in nuts3_region_id_and_year_to_avg_yield:

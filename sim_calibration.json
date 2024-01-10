@@ -5,9 +5,16 @@
 
 	"climate.csv-options": {
         "no-of-climate-file-header-lines": 2,
-        "csv-separator": ",",
+        "csv-separator": "\t",
         "header-to-acd-names": {
-			"windspeed": "wind"
+			"Date": "iso-date",
+			"Precipitation": "precip",
+			"TempMin": "tmin",
+			"TempMean": "tavg",
+			"TempMax": "tmax",
+			"Radiation": ["globrad", "/", 1000.0],
+			"Windspeed": "wind",
+			"RelHumCalc": "relhumid"
         }
     },
 	

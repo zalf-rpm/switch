@@ -94,7 +94,7 @@ def run_consumer(server=None, port=None):
 
                 #with open(path_to_out_file, "a") as _:
                 #    _.write(f"received result customId: {custom_id}\n")
-                #print("received result customId:", custom_id)
+                print("received result customId:", custom_id)
 
                 nuts3_region_id = custom_id["nuts3_region_id"]
 
