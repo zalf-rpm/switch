@@ -64,7 +64,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         "run-setups": "[1]",
         "path_to_channel": "/home/berg/GitHub/mas-infrastructure/src/cpp/common/_cmake_debug/channel" if local_run else
         "/home/rpm/start_manual_test_services/GitHub/mas-infrastructure/src/cpp/common/_cmake_release/channel",
-        "path_to_python": "python" if local_run else "/home/rpm/.conda/envs/py39/bin/python",
+        "path_to_python": "python" if local_run else "/home/rpm/.conda/envs/clim4cast/bin/python",
         "repetitions": "2",
         "test_mode": "false",
         "all_nuts3_regions_one_by_one": False,

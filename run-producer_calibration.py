@@ -55,15 +55,6 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
 PATHS = {
-    # adjust the local path to your environment
-    "cj-local-remote": {
-        # "include-file-base-path": "/home/berg/GitHub/monica-parameters/", # path to monica-parameters
-        "path-to-climate-dir": "D:/projects/KlimErtrag/",  # local path
-        "monica-path-to-climate-dir": "/monica_data/climate-data/",
-        # mounted path to archive accessable by monica executable
-        "path-to-data-dir": "./data/",  # mounted path to archive or hard drive with data
-        "path-debug-write-folder": "./debug-out/",
-    },
     # adjust the local path to your environmen
     "ow-local-remote": {
         # "include-file-base-path": "/home/berg/GitHub/monica-parameters/", # path to monica-parameters
@@ -92,15 +83,15 @@ PATHS = {
         "path-to-data-dir": "./data/",  # mounted path to archive or hard drive with data
         "path-debug-write-folder": "./debug-out/",
     },
-
-    "remoteProducer-remoteMonica": {
-        # "include-file-base-path": "/monica-parameters/", # path to monica-parameters
+    "hpc-local-remote": {
+        # "path-to-climate-dir": "/beegfs/common/data/soil/global_soil_dataset_for_earth_system_modeling/",
+        # mounted path to archive or hard drive with climate data
         "path-to-climate-dir": "/data/",  # mounted path to archive or hard drive with climate data
         "monica-path-to-climate-dir": "/monica_data/climate-data/",
         # mounted path to archive accessable by monica executable
         "path-to-data-dir": "./data/",  # mounted path to archive or hard drive with data
-        "path-debug-write-folder": "/out/debug-out/",
-    }
+        "path-debug-write-folder": "./debug-out/",
+    },
 }
 
 DATA_SOIL_DB = "germany/buek200.sqlite"
