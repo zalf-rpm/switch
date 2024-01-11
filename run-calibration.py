@@ -78,7 +78,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
             os.makedirs(config["path_to_out"])
         except OSError:
             print("run-calibration.py: Couldn't create dir:", config["path_to_out"], "!")
-    path_to_out_file = config["path_to_out"] + "/producer.out"
+    path_to_out_file = config["path_to_out"] + "/run-calibration.out"
     with open(path_to_out_file, "a") as _:
         _.write(f"config: {config}\n")
 
