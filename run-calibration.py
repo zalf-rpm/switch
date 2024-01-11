@@ -4,6 +4,7 @@ import json
 import csv
 import matplotlib.pyplot as plt
 import monica_run_lib
+import numpy as np
 import os
 from pathlib import Path
 import spotpy
@@ -68,17 +69,18 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         "repetitions": "2",
         "test_mode": "false",
         "all_nuts3_regions_one_by_one": False,
-        "only_nuts3_region_ids": "[236]",  # "[]",
+        "only_nuts3_region_ids": "[]",  # "[]",
     }
 
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
-    if not os.path.exists(config["path_to_out"]):
+    path_to_out_folder = config['path_to_out']
+    if not os.path.exists(path_to_out_folder):
         try:
-            os.makedirs(config["path_to_out"])
+            os.makedirs(path_to_out_folder)
         except OSError:
-            print("run-calibration.py: Couldn't create dir:", config["path_to_out"], "!")
-    path_to_out_file = config["path_to_out"] + "/run-calibration.out"
+            print("run-calibration.py: Couldn't create dir:", path_to_out_folder, "!")
+    path_to_out_file = path_to_out_folder + "/run-calibration.out"
     with open(path_to_out_file, "a") as _:
         _.write(f"config: {config}\n")
 
@@ -129,7 +131,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
                 crop_to_observations["WW"].append({
                     "id": id,
                     "year": 1999 + i - 2,
-                    "value": yield_t if yield_t < 0.0 else yield_t * 1000.0  # t/ha -> kg/ha
+                    "value": np.nan if yield_t < 0.0 else yield_t * 1000.0  # t/ha -> kg/ha
                 })
 
     # order obs list by id to avoid mismatch between observation/evaluation lists
@@ -174,13 +176,6 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         to_be_run_only_nuts3_region_ids = list([id] for id in sorted(nuts3_region_id_to_name.keys()))
     else:
         to_be_run_only_nuts3_region_ids = [only_nuts3_region_ids]
-
-    path_to_out_folder = f"{config['path_to_out']}"
-    if not os.path.exists(path_to_out_folder):
-        try:
-            os.makedirs(path_to_out_folder)
-        except OSError:
-            print("run-calibration.py: Couldn't create dir:", path_to_out_folder, "!")
 
     spot_setup = None
     for current_only_nuts3_region_ids in to_be_run_only_nuts3_region_ids:

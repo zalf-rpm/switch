@@ -83,17 +83,17 @@ class spot_setup(object):
         nuts3_region_id_and_year_to_avg_yield = json.loads(s)
         # print("received monica results:", country_id_and_year_to_avg_yield, flush=True)
 
-        assert len(self.obs_flat_list) == len(nuts3_region_id_and_year_to_avg_yield)
-
         # remove all simulation results which are not in the observed list
         sim_list = []
         for d in self.observations:
             key = f"{d['id']}|{d['year']}"
             if key in nuts3_region_id_and_year_to_avg_yield:
-                if d["value"] < 0:
-                    sim_list.append(d["value"])
+                if np.isnan(d["value"]):
+                    sim_list.append(np.nan)
                 else:
                     sim_list.append(nuts3_region_id_and_year_to_avg_yield[key])
+            else:
+                sim_list.append(np.nan)
 
         print("len(sim_list):", len(sim_list), "== len(self.obs_list):", len(self.obs_flat_list), flush=True)
         with open(self.path_to_out_file, "a") as _:
@@ -109,7 +109,4 @@ class spot_setup(object):
         return self.obs_flat_list
 
     def objectivefunction(self, simulation, evaluation):
-        if not simulation or len(simulation) != len(evaluation) or len(simulation) == 0 or len(evaluation) == 0:
-            return np.nan
-        else:
-            return spotpy.objectivefunctions.rmse(evaluation, simulation)
+        return spotpy.objectivefunctions.rmse(evaluation, simulation)
