@@ -47,7 +47,7 @@ def get_reader_writer_srs_from_channel(path_to_channel_binary, chan_name=None):
     return {"chan": chan, "reader_sr": reader_sr, "writer_sr": writer_sr}
 
 
-local_run = True
+local_run = False
 
 
 def run_calibration(server=None, prod_port=None, cons_port=None):
