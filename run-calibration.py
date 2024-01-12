@@ -188,7 +188,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         if spot_setup:
             del spot_setup
         spot_setup = calibration_spotpy_setup_MONICA.spot_setup(params, filtered_observations, prod_writer, cons_reader,
-                                                                config["path_to_out"], current_only_nuts3_region_ids)
+                                                                path_to_out_folder, current_only_nuts3_region_ids)
 
         rep = int(config["repetitions"]) #initial number was 10
         results = []

@@ -4,7 +4,7 @@
 	"climate.csv": "",
 
 	"climate.csv-options": {
-        "no-of-climate-file-header-lines": 2,
+        "no-of-climate-file-header-lines": 1,
         "csv-separator": "\t",
         "header-to-acd-names": {
 			"Date": "iso-date",
@@ -14,7 +14,7 @@
 			"TempMax": "tmax",
 			"Radiation": ["globrad", "/", 1000.0],
 			"Windspeed": "wind",
-			"RelHumCalc": "relhumid"
+			"RelHumCalc": ["relhumid", "*", 100.0]
         }
     },
 	
