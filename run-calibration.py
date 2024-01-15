@@ -173,7 +173,10 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
 
     to_be_run_only_nuts3_region_ids = []
     if config["all_nuts3_regions_one_by_one"]:
-        to_be_run_only_nuts3_region_ids = list([id] for id in sorted(nuts3_region_id_to_name.keys()))
+        if len(only_nuts3_region_ids) > 0:
+            to_be_run_only_nuts3_region_ids = list([id_] for id_ in sorted(only_nuts3_region_ids))
+        else:
+            to_be_run_only_nuts3_region_ids = list([id_] for id_ in sorted(nuts3_region_id_to_name.keys()))
     else:
         to_be_run_only_nuts3_region_ids = [only_nuts3_region_ids]
 
@@ -181,7 +184,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
     for current_only_nuts3_region_ids in to_be_run_only_nuts3_region_ids:
         nuts3_region_folder_name = "-".join(map(str, current_only_nuts3_region_ids))
         filtered_observations = observations
-        if len(only_nuts3_region_ids) > 0:
+        if len(current_only_nuts3_region_ids) > 0:
             filtered_observations = list(filter(lambda d: d["id"] in current_only_nuts3_region_ids, observations))
             if len(filtered_observations) == 0:
                 continue
