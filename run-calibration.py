@@ -263,6 +263,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         plt.ylabel("RMSE")
         plt.xlabel("Iteration")
         fig.savefig(f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_objectivefunctiontrace_MONICA.png", dpi=150)
+        plt.close(fig)
 
         del results
     # kill the two channels and the producer and consumer
