@@ -196,15 +196,16 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         rep = int(config["repetitions"]) #initial number was 10
         results = []
         #Set up the sampler with the model above
-        sampler = spotpy.algorithms.sceua(spot_setup, dbname=f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results", dbformat="csv")
-
+        #sampler = spotpy.algorithms.sceua(spot_setup, dbname=f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results", dbformat="csv")
+        sampler = spotpy.algorithms.dream(spot_setup, dbname=f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results", dbformat="csv")
         #Run the sampler to produce the paranmeter distribution
         #and identify optimal parameters based on objective function
         #ngs = number of complexes
         #kstop = max number of evolution loops before convergence
         #peps = convergence criterion
         #pcento = percent change allowed in kstop loops before convergence
-        sampler.sample(rep, ngs=len(params)*2, peps=0.001, pcento=0.001)
+        #sampler.sample(rep, ngs=len(params)*2, peps=0.001, pcento=0.001)
+        sampler.sample(rep, nChains = 4, nCr = 3, eps = (10e-6), convergence_limit = 1.2)
 
         def print_status_final(self, stream):
             print("\n*** Final SPOTPY summary ***")
