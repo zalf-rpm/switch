@@ -88,10 +88,10 @@ class spot_setup(object):
         for d in self.observations:
             key = f"{d['id']}|{d['year']}"
             if key in nuts3_region_id_and_year_to_avg_yield:
-                if np.isnan(d["value"]):
-                    sim_list.append(np.nan)
-                else:
-                    sim_list.append(nuts3_region_id_and_year_to_avg_yield[key])
+                #if np.isnan(d["value"]):
+                #    sim_list.append(np.nan)
+                #else:
+                sim_list.append(nuts3_region_id_and_year_to_avg_yield[key])
             else:
                 sim_list.append(np.nan)
 

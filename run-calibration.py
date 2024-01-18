@@ -197,7 +197,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         results = []
         #Set up the sampler with the model above
         #sampler = spotpy.algorithms.sceua(spot_setup, dbname=f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results", dbformat="csv")
-        sampler = spotpy.algorithms.dream(spot_setup, dbname=f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results", dbformat="csv")
+        sampler = spotpy.algorithms.dream(spot_setup, dbname=f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_monica_results", dbformat="csv")
         #Run the sampler to produce the paranmeter distribution
         #and identify optimal parameters based on objective function
         #ngs = number of complexes
@@ -251,7 +251,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
             print_status_final(sampler.status, _)
 
         #Extract the parameter samples from distribution
-        results = spotpy.analyser.load_csv_results(f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results")
+        results = spotpy.analyser.load_csv_results(f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_monica_results")
 
         # Plot how the objective function was minimized during sampling
         #font = {"family": "calibri",
@@ -263,7 +263,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         plt.show()
         plt.ylabel("RMSE")
         plt.xlabel("Iteration")
-        fig.savefig(f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_objectivefunctiontrace_MONICA.png", dpi=150)
+        fig.savefig(f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_objectivefunctiontrace_MONICA.png", dpi=150)
         plt.close(fig)
 
         del results
