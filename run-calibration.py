@@ -205,7 +205,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         #peps = convergence criterion
         #pcento = percent change allowed in kstop loops before convergence
         sampler.sample(rep, ngs=len(params)*2, peps=0.001, pcento=0.001)
-        #sampler.sample(rep, nChains = 20, nCr = 3, eps = (10e-6), convergence_limit = 1.2)
+        #sampler.sample(rep, nChains = 20, nCr = 3, eps = (10e-6), 0)
 
         def print_status_final(self, stream):
             print("\n*** Final SPOTPY summary ***")
