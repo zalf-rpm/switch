@@ -131,7 +131,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
                 crop_to_observations["WW"].append({
                     "id": id,
                     "year": 1999 + i - 2,
-                    "value": np.nan if yield_t < 0.0 else yield_t * 1000.0  # t/ha -> kg/ha
+                    "value": np.nan if yield_t < 0.0 else yield_t * 1000.0  # t/ha -> kg/ha nan is -9999
                 })
 
     # order obs list by id to avoid mismatch between observation/evaluation lists
