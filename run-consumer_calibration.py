@@ -94,7 +94,7 @@ def run_consumer(server=None, port=None):
 
                 #with open(path_to_out_file, "a") as _:
                 #    _.write(f"received result customId: {custom_id}\n")
-                print("received result customId:", custom_id)
+                #print("received result customId:", custom_id)
 
                 nuts3_region_id = custom_id["nuts3_region_id"]
 
@@ -107,7 +107,7 @@ def run_consumer(server=None, port=None):
             if no_of_envs_expected == envs_received and writer:
                 with open(path_to_out_file, "a") as _:
                     _.write(f"{datetime.now()} last expected env received\n")
-                print("last expected env received")
+                #print("last expected env received")
                 nuts3_region_id_and_year_to_avg_yield = {}
                 for nuts3_region_id, rest in nuts3_region_id_to_year_to_yields.items():
                     for year, yields in rest.items():
@@ -134,7 +134,7 @@ def run_consumer(server=None, port=None):
             print("Exception:", e)
             break
 
-    print("exiting run_consumer()")
+    #print("exiting run_consumer()")
 
 
 if __name__ == "__main__":

@@ -1,3 +1,5 @@
+
+from datetime import datetime
 import capnp
 from collections import defaultdict
 import json
@@ -91,6 +93,9 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
     cons_chan_data = get_reader_writer_srs_from_channel(config["path_to_channel"], "cons_chan")
     procs.append(cons_chan_data["chan"])
 
+    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+        _.write(f"{datetime.now()} Process procs.append(sp.Popen(.()producer\n")
+
     procs.append(sp.Popen([
         config["path_to_python"],
         "run-producer_calibration.py",
@@ -103,6 +108,9 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         f"test_mode={config['test_mode']}",
         f"path_to_out={config['path_to_out']}",
     ]))
+
+    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+        _.write(f"{datetime.now()} Process procs.append(sp.Popen(.()consumer\n")
 
     procs.append(sp.Popen([
         config["path_to_python"],
@@ -134,6 +142,8 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
                     "value": np.nan if yield_t < 0.0 else yield_t * 1000.0  # t/ha -> kg/ha nan is -9999
                 })
 
+    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+        _.write(f"{datetime.now()} Consumer received and finished\n")
     # order obs list by id to avoid mismatch between observation/evaluation lists
     for crop, obs in crop_to_observations.items():
         obs.sort(key=lambda r: [r["id"], r["year"]])
