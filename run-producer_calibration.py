@@ -676,15 +676,23 @@ def run_producer(server={"server": None, "port": None}):
 
                         sent_env_count += 1
 
+                        with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                            _.write(f"{datetime.now()} Sending jobs out (producer)\n") 
+
                         socket.send_json(env_template)
                         print("sent env ", sent_env_count, " customId: ", env_template["customId"])
 
+                        with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                            _.write(f"{datetime.now()} Ended jobs (producer)\n") 
             except Exception as e:
                 with open(path_to_out_file, "a") as _:
                     _.write(f"raised exception: {e}\n")
                 print("Exception raised:", e)
                 raise e
 
+
+            with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                _.write(f"{datetime.now()} Sending final last message (producer) \n") 
             # send a last message will be just forwarded by monica to signify last
             if env_template:
                 env_template["pathToClimateCSV"] = ""
