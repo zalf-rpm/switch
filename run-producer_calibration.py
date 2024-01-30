@@ -246,7 +246,7 @@ def run_producer(server={"server": None, "port": None}):
     print("read: ", path_to_crop_grid)
 
     with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-        _.write(f"{datetime.now()} grids load\n") 
+        _.write(f"{datetime.now()} grids load producer\n\n") 
 
     # Create the function for the mask. This function will later use the additional column in a setup file!
 
@@ -302,7 +302,7 @@ def run_producer(server={"server": None, "port": None}):
                 crop_id_short = crop_id.split('_')[0]
 
                 with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                    _.write(f"{datetime.now()} setup started\n") 
+                    _.write(f"{datetime.now()} setup started producer\n") 
 
                 if region_name and len(region_name) > 0:
                     # Create the soil mask for the specific region
@@ -329,7 +329,7 @@ def run_producer(server={"server": None, "port": None}):
                     continue
 
                 with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                    _.write(f"{datetime.now()} crop added\n") 
+                    _.write(f"{datetime.now()} crop added producer\n") 
 
                 cdict = {}
                 # path to latlon-to-rowcol.json
@@ -341,7 +341,7 @@ def run_producer(server={"server": None, "port": None}):
                 print("created climate_data to gk5 interpolator: ", path)
 
                 with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                    _.write(f"{datetime.now()} climate data read\n") 
+                    _.write(f"{datetime.now()} climate data read producer\n") 
 
                 # read template sim.json
                 with open(setup.get("sim.json", config["sim.json"])) as _:
@@ -358,7 +358,7 @@ def run_producer(server={"server": None, "port": None}):
                     site_json = json.load(_)
 
                 with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                    _.write(f"{datetime.now()} read site and sim json\n") 
+                    _.write(f"{datetime.now()} read site and sim json producer\n\n") 
 
                 #site_json["EnvironmentParameters"]["rcp"] = scenario
 

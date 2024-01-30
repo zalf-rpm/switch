@@ -217,12 +217,12 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         # sampler.sample(rep, ngs=len(params)*2, peps=0.001, pcento=0.001)
 
         with open(path_to_out_folder + "/spot_setup.out", "a") as _:
-            _.write(f"{datetime.now()} sampler starts")   
+            _.write(f"{datetime.now()} sampler starts run-cal\n")   
 
         sampler.sample(rep, nChains = 20, nCr = 3, eps = (10e-6), convergence_limit=1.0)
 
         with open(path_to_out_folder + "/spot_setup.out", "a") as _:
-            _.write(f"{datetime.now()} sampler ends") 
+            _.write(f"{datetime.now()} sampler ends run-cal\n") 
 
 
         def print_status_final(self, stream):
@@ -269,7 +269,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
             print_status_final(sampler.status, _)
 
         with open(path_to_out_folder + "/spot_setup.out", "a") as _:
-            _.write(f"{datetime.now()} results written") 
+            _.write(f"{datetime.now()} results written run-cal\n\n") 
 
         #Extract the parameter samples from distribution
         results = spotpy.analyser.load_csv_results(f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_monica_results")
