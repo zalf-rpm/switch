@@ -15,6 +15,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+from datetime import datetime
 import capnp
 from collections import defaultdict
 import copy
@@ -133,6 +134,7 @@ def run_producer(server={"server": None, "port": None}):
         "only_nuts3_region_ids": "[]",  # "[10]",
     }
 
+
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     path_to_out_file = config["path_to_out"] + "/producer.out"
@@ -143,6 +145,9 @@ def run_producer(server={"server": None, "port": None}):
             print("run-calibration-producer.py: Couldn't create dir:", config["path_to_out"], "!")
     with open(path_to_out_file, "a") as _:
         _.write(f"config: {config}\n")
+
+    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+        _.write(f"{datetime.now()} start producer in producer\n") 
 
     nuts3_region_ids = json.loads(config["only_nuts3_region_ids"])
 
@@ -158,6 +163,9 @@ def run_producer(server={"server": None, "port": None}):
     setups = monica_run_lib.read_sim_setups(config["setups-file"])
     run_setups = json.loads(config["run-setups"])
     print("read sim setups: ", config["setups-file"])
+
+    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+        _.write(f"{datetime.now()} setup read\n") 
 
     # transforms geospatial coordinates from one coordinate reference system to another
     # transform wgs84 into gk5
@@ -236,6 +244,9 @@ def run_producer(server={"server": None, "port": None}):
     crop_grid = np.loadtxt(path_to_crop_grid, dtype=int, skiprows=6)
     crop_interpolate = monica_run_lib.create_ascii_grid_interpolator(crop_grid, crop_meta)
     print("read: ", path_to_crop_grid)
+
+    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+        _.write(f"{datetime.now()} grids load\n") 
 
     # Create the function for the mask. This function will later use the additional column in a setup file!
 
