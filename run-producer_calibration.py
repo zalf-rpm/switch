@@ -279,6 +279,9 @@ def run_producer(server={"server": None, "port": None}):
             if msg.which() == "done":
                 break
 
+            with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                _.write(f"{datetime.now()} connected\n") 
+
             env_template = None
             start_setup_time = None
             try:
@@ -297,6 +300,9 @@ def run_producer(server={"server": None, "port": None}):
 
                 ## extract crop_id from crop-id name that has possible an extenstion
                 crop_id_short = crop_id.split('_')[0]
+
+                with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                    _.write(f"{datetime.now()} setup started\n") 
 
                 if region_name and len(region_name) > 0:
                     # Create the soil mask for the specific region
@@ -322,6 +328,9 @@ def run_producer(server={"server": None, "port": None}):
                     print("Couldn't read file:", path_harvest)
                     continue
 
+                with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                    _.write(f"{datetime.now()} crop added\n") 
+
                 cdict = {}
                 # path to latlon-to-rowcol.json
                 # path = TEMPLATE_PATH_LATLON.format(path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
@@ -330,6 +339,9 @@ def run_producer(server={"server": None, "port": None}):
                 climate_data_interpolator = monica_run_lib.create_climate_geoGrid_interpolator_from_json_file(path, wgs84_crs,
                                                                                                               soil_crs, cdict)
                 print("created climate_data to gk5 interpolator: ", path)
+
+                with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                    _.write(f"{datetime.now()} climate data read\n") 
 
                 # read template sim.json
                 with open(setup.get("sim.json", config["sim.json"])) as _:
@@ -344,6 +356,9 @@ def run_producer(server={"server": None, "port": None}):
                 # read template site.json
                 with open(setup.get("site.json", config["site.json"])) as _:
                     site_json = json.load(_)
+
+                with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                    _.write(f"{datetime.now()} read site and sim json\n") 
 
                 #site_json["EnvironmentParameters"]["rcp"] = scenario
 
