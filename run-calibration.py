@@ -261,7 +261,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
             print_status_final(sampler.status, _)
 
         #Extract the parameter samples from distribution
-        results = spotpy.analyser.load_csv_results(f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_monica_results")
+        results = spotpy.analyser.load_csv_results(f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results")
 
         # Plot how the objective function was minimized during sampling
         #font = {"family": "calibri",
@@ -273,7 +273,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         plt.show()
         plt.ylabel("RMSE")
         plt.xlabel("Iteration")
-        fig.savefig(f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_objectivefunctiontrace_MONICA.png", dpi=150)
+        fig.savefig(f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_objectivefunctiontrace_MONICA.png", dpi=150)
         plt.close(fig)
 
         del results
