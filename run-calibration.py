@@ -215,7 +215,15 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         #peps = convergence criterion
         #pcento = percent change allowed in kstop loops before convergence
         # sampler.sample(rep, ngs=len(params)*2, peps=0.001, pcento=0.001)
+
+        with open(path_to_out_folder + "/spot_setup.out", "a") as _:
+            _.write(f"{datetime.now()} sampler starts")   
+
         sampler.sample(rep, nChains = 20, nCr = 3, eps = (10e-6), convergence_limit=1.0)
+
+        with open(path_to_out_folder + "/spot_setup.out", "a") as _:
+            _.write(f"{datetime.now()} sampler ends") 
+
 
         def print_status_final(self, stream):
             print("\n*** Final SPOTPY summary ***")
@@ -259,6 +267,9 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         path_to_best_out_file = f"{path_to_out_folder}/{nuts3_region_folder_name}_best.out"
         with open(path_to_best_out_file, "a") as _:
             print_status_final(sampler.status, _)
+
+        with open(path_to_out_folder + "/spot_setup.out", "a") as _:
+            _.write(f"{datetime.now()} results written") 
 
         #Extract the parameter samples from distribution
         results = spotpy.analyser.load_csv_results(f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_monica_results")
