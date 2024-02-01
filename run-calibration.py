@@ -206,20 +206,20 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         rep = int(config["repetitions"]) #initial number was 10
         results = []
         #Set up the sampler with the model above
-        # sampler = spotpy.algorithms.sceua(spot_setup, dbname=f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results", dbformat="csv")
-        sampler = spotpy.algorithms.dream(spot_setup, dbname=f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_monica_results", dbformat="csv")
+        sampler = spotpy.algorithms.sceua(spot_setup, dbname=f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results", dbformat="csv")
+        # sampler = spotpy.algorithms.dream(spot_setup, dbname=f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_monica_results", dbformat="csv")
         #Run the sampler to produce the paranmeter distribution
         #and identify optimal parameters based on objective function
         #ngs = number of complexes
         #kstop = max number of evolution loops before convergence
         #peps = convergence criterion
         #pcento = percent change allowed in kstop loops before convergence
-        # sampler.sample(rep, ngs=len(params)*2, peps=0.001, pcento=0.001)
+        sampler.sample(rep, ngs=len(params)*2, peps=0.001, pcento=0.001)
 
         with open(path_to_out_folder + "/spot_setup.out", "a") as _:
             _.write(f"{datetime.now()} sampler starts run-cal\n")   
 
-        sampler.sample(rep, nChains = 20, nCr = 3, eps = (10e-6), convergence_limit=1.0)
+        # sampler.sample(rep, nChains = 20, nCr = 3, eps = (10e-6), convergence_limit=1.0)
 
         with open(path_to_out_folder + "/spot_setup.out", "a") as _:
             _.write(f"{datetime.now()} sampler ends run-cal\n") 
@@ -272,7 +272,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
             _.write(f"{datetime.now()} results written run-cal\n\n") 
 
         #Extract the parameter samples from distribution
-        results = spotpy.analyser.load_csv_results(f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_monica_results")
+        results = spotpy.analyser.load_csv_results(f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results")
 
         # Plot how the objective function was minimized during sampling
         #font = {"family": "calibri",
@@ -284,7 +284,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         plt.show()
         plt.ylabel("RMSE")
         plt.xlabel("Iteration")
-        fig.savefig(f"{path_to_out_folder}/{nuts3_region_folder_name}_DREAM_objectivefunctiontrace_MONICA.png", dpi=150)
+        fig.savefig(f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_objectivefunctiontrace_MONICA.png", dpi=150)
         plt.close(fig)
 
         del results
