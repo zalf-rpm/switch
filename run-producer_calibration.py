@@ -174,12 +174,10 @@ def run_producer(server={"server": None, "port": None}):
     utm32_crs = CRS.from_epsg(25832)
     # transformers[wgs84] = Transformer.from_crs(wgs84_crs, gk5_crs, always_xy=True)
 
-    ilr_seed_harvest_data = defaultdict(
-        lambda: {"interpolate": None, "data": defaultdict(dict), "is-winter-crop": None})
+
 
     # Load grids
-    ## note numpy is able to load from a compressed file, ending with .gz or .bz2
-
+    # note numpy is able to load from a compressed file, ending with .gz or .bz2
     # soil data
     path_to_soil_grid = paths["path-to-data-dir"] + DATA_GRID_SOIL
     soil_epsg_code = int(path_to_soil_grid.split("/")[-1].split("_")[2])
@@ -269,6 +267,122 @@ def run_producer(server={"server": None, "port": None}):
     else:
         setup_id = run_setups[0]
 
+    setup = setups[setup_id]
+
+    cdict = {}
+    # path to latlon-to-rowcol.json
+    # path = TEMPLATE_PATH_LATLON.format(path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
+    path = TEMPLATE_PATH_LATLON.format(
+        path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
+    climate_data_interpolator = monica_run_lib.create_climate_geoGrid_interpolator_from_json_file(path, wgs84_crs,
+                                                                                                  soil_crs, cdict)
+    print("created climate_data to gk5 interpolator: ", path)
+
+    crop_id = setup["crop-id"]
+
+    # extract crop_id from crop-id name that has possible an extenstion
+    crop_id_short = crop_id.split('_')[0]
+
+    ilr_seed_harvest_data = defaultdict(
+        lambda: {"interpolate": None, "data": defaultdict(dict), "is-winter-crop": None}
+    )
+    # add crop id from setup file
+    try:
+        # read seed/harvest dates for each crop_id
+        path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
+                                                    crop_id=crop_id_short)
+        print("created seed harvest gk5 interpolator and read data: ", path_harvest)
+        monica_run_lib.create_seed_harvest_geoGrid_interpolator_and_read_data(path_harvest, wgs84_crs, utm32_crs,
+                                                                              ilr_seed_harvest_data)
+    except IOError:
+        path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
+                                                    crop_id=crop_id_short)
+        print("Couldn't read file:", path_harvest)
+
+    soil_id_cache = {}
+
+    nuts3_region_ids_to_row_col_to_cell_data = defaultdict(dict)
+    def data_row_cols_for_nuts3_region_ids(nuts3_region_ids):
+        scols = int(soil_metadata["ncols"])
+        srows = int(soil_metadata["nrows"])
+        scellsize = int(soil_metadata["cellsize"])
+        xllcorner = int(soil_metadata["xllcorner"])
+        yllcorner = int(soil_metadata["yllcorner"])
+        nodata_value = int(soil_metadata["nodata_value"])
+
+        row_col_to_cell_data = {}
+
+        for srow in range(0, srows):
+            print(srow, end=", ")
+            if srow < int(config["start-row"]):
+                continue
+            elif int(config["end-row"]) > 0 and srow > int(config["end-row"]):
+                break
+
+            for scol in range(0, scols):
+                soil_id = int(soil_grid[srow, scol])
+                if soil_id == nodata_value:
+                    continue
+
+                # get coordinate of clostest climate element of real soil-cell
+                sh = yllcorner + (scellsize / 2) + (srows - srow - 1) * scellsize
+                sr = xllcorner + (scellsize / 2) + scol * scellsize
+                # inter = crow/ccol encoded into integer
+                crow, ccol = climate_data_interpolator(sr, sh)
+
+                crop_grid_id = int(crop_grid[srow, scol])
+                if crop_grid_id != 1:
+                    continue
+
+                data = {
+                    "srow": srow, "scol": scol,
+                    "crow": int(crow), "ccol": int(ccol),
+                    "sr": int(sr), "sh": int(sh),
+                }
+
+                tcoords = {}
+
+                if nuts3_regions_crs not in tcoords:
+                    tcoords[nuts3_regions_crs] = soil_crs_to_x_transformers[nuts3_regions_crs].transform(sr, sh)
+                n3r, n3h = tcoords[nuts3_regions_crs]
+                nuts3_region_id = int(nuts3_regions_interpolate(n3r, n3h))
+                if not nuts3_region_id or (len(nuts3_region_ids) > 0 and nuts3_region_id not in nuts3_region_ids):
+                    continue
+                data["nuts3_region_id"] = nuts3_region_id
+
+                if soil_id in soil_id_cache:
+                    soil_profile = soil_id_cache[soil_id]
+                else:
+                    soil_profile = soil_io3.soil_parameters(soil_db_con, soil_id)
+                    soil_id_cache[soil_id] = soil_profile
+                if not soil_profile or len(soil_profile) == 0:
+                    continue
+                data["soil_id"] = soil_id
+
+                # check if current grid cell is used for agriculture
+                if setup["landcover"]:
+                    if landuse_crs not in tcoords:
+                        tcoords[landuse_crs] = soil_crs_to_x_transformers[landuse_crs].transform(sr, sh)
+                    lur, luh = tcoords[landuse_crs]
+                    data["landuse_id"] = landuse_interpolate(lur, luh)
+                    if data["landuse_id"] not in [2, 3, 4]:
+                        continue
+
+                if dem_crs not in tcoords:
+                    tcoords[dem_crs] = soil_crs_to_x_transformers[dem_crs].transform(sr, sh)
+                demr, demh = tcoords[dem_crs]
+                data["height_nn"] = float(dem_interpolate(demr, demh))
+
+                if slope_crs not in tcoords:
+                    tcoords[slope_crs] = soil_crs_to_x_transformers[slope_crs].transform(sr, sh)
+                slr, slh = tcoords[slope_crs]
+                data["slope"] = float(slope_interpolate(slr, slh))
+
+                row_col_to_cell_data[(srow, scol)] = data
+
+        print()
+        return row_col_to_cell_data
+
     conman = common.ConnectionManager()
     reader = conman.try_connect(config["reader_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
     if reader:
@@ -291,57 +405,19 @@ def run_producer(server={"server": None, "port": None}):
                 if "only_nuts3_region_ids" in params:
                     nuts3_region_ids = params["only_nuts3_region_ids"]
                     del params["only_nuts3_region_ids"]
+                if len(nuts3_region_ids) > 0:
+                    nuts3_region_ids_str = "_".join([str(x) for x in nuts3_region_ids])
+                else:
+                    nuts3_region_ids_str = "_"
+
+                row_col_to_cell_data = None
+                if nuts3_region_ids_str not in nuts3_region_ids_to_row_col_to_cell_data:
+                    row_col_to_cell_data = data_row_cols_for_nuts3_region_ids(nuts3_region_ids)
+                    nuts3_region_ids_to_row_col_to_cell_data[nuts3_region_ids_str] = row_col_to_cell_data
+                else:
+                    row_col_to_cell_data = nuts3_region_ids_to_row_col_to_cell_data[nuts3_region_ids_str]
 
                 start_setup_time = time.perf_counter()
-
-                setup = setups[setup_id]
-                crop_id = setup["crop-id"]
-                region_name = setup["region_name"]
-
-                ## extract crop_id from crop-id name that has possible an extenstion
-                crop_id_short = crop_id.split('_')[0]
-
-                with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                    _.write(f"{datetime.now()} setup started producer\n") 
-
-                if region_name and len(region_name) > 0:
-                    # Create the soil mask for the specific region
-                    path_to_soil_grid_ow = paths["path-to-data-dir"] + DATA_GRID_SOIL_OW
-                    mask = create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid_ow)
-
-                    # Apply the soil mask to the soil grid
-                    soil_grid_copy = soil_grid.copy()
-                    soil_grid[mask == False] = -8888
-                    soil_grid[soil_grid_copy == -9999] = -9999
-
-                # add crop id from setup file
-                try:
-                    # read seed/harvest dates for each crop_id
-                    path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
-                                                                crop_id=crop_id_short)
-                    print("created seed harvest gk5 interpolator and read data: ", path_harvest)
-                    monica_run_lib.create_seed_harvest_geoGrid_interpolator_and_read_data(path_harvest, wgs84_crs, utm32_crs,
-                                                                                          ilr_seed_harvest_data)
-                except IOError:
-                    path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
-                                                                crop_id=crop_id_short)
-                    print("Couldn't read file:", path_harvest)
-                    continue
-
-                with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                    _.write(f"{datetime.now()} crop added producer\n") 
-
-                cdict = {}
-                # path to latlon-to-rowcol.json
-                # path = TEMPLATE_PATH_LATLON.format(path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
-                path = TEMPLATE_PATH_LATLON.format(
-                    path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
-                climate_data_interpolator = monica_run_lib.create_climate_geoGrid_interpolator_from_json_file(path, wgs84_crs,
-                                                                                                              soil_crs, cdict)
-                print("created climate_data to gk5 interpolator: ", path)
-
-                with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                    _.write(f"{datetime.now()} climate data read producer\n") 
 
                 # read template sim.json
                 with open(setup.get("sim.json", config["sim.json"])) as _:
@@ -406,284 +482,195 @@ def run_producer(server={"server": None, "port": None}):
                     "climate": ""
                 })
 
-                scols = int(soil_metadata["ncols"])
-                srows = int(soil_metadata["nrows"])
-                scellsize = int(soil_metadata["cellsize"])
-                xllcorner = int(soil_metadata["xllcorner"])
-                yllcorner = int(soil_metadata["yllcorner"])
-                nodata_value = int(soil_metadata["nodata_value"])
 
-                # unknown_soil_ids = set()
-                soil_id_cache = {}
-                print("All Rows x Cols: " + str(srows) + "x" + str(scols))
-                for srow in range(0, srows):
-                    print(srow, end=", ")
+                for (srow, scol), cell_data in row_col_to_cell_data.items():
+                    print((srow, scol), end=", ")
 
-                    if srow < int(config["start-row"]):
-                        continue
-                    elif int(config["end-row"]) > 0 and srow > int(config["end-row"]):
-                        break
+                    crow = cell_data["crow"]
+                    ccol = cell_data["ccol"]
+                    sr = cell_data["sr"]
+                    sh = cell_data["sh"]
 
-                    for scol in range(0, scols):
-                        soil_id = int(soil_grid[srow, scol])
-                        if soil_id == nodata_value:
-                            continue
+                    soil_id = cell_data["soil_id"]
+                    soil_profile = soil_id_cache.get(soil_id, [])
 
-                        # get coordinate of clostest climate element of real soil-cell
-                        sh = yllcorner + (scellsize / 2) + (srows - srow - 1) * scellsize
-                        sr = xllcorner + (scellsize / 2) + scol * scellsize
-                        # inter = crow/ccol encoded into integer
-                        crow, ccol = climate_data_interpolator(sr, sh)
+                    worksteps = env_template["cropRotation"][0]["worksteps"]
+                    sowing_ws = next(filter(lambda ws: ws["type"][-6:] == "Sowing", worksteps))
+                    harvest_ws = next(filter(lambda ws: ws["type"][-7:] == "Harvest", worksteps))
 
-                        crop_grid_id = int(crop_grid[srow, scol])
-                        # print(crop_grid_id)
-                        if crop_grid_id != 1 or soil_id == -8888:
-                            continue
+                    ilr_interpolate = ilr_seed_harvest_data[crop_id_short]["interpolate"]
+                    seed_harvest_cs = ilr_interpolate(sr, sh) if ilr_interpolate else None
 
-                        tcoords = {}
+                    # set external seed/harvest dates
+                    if seed_harvest_cs:
+                        seed_harvest_data = ilr_seed_harvest_data[crop_id_short]["data"][seed_harvest_cs]
+                        if seed_harvest_data:
+                            is_winter_crop = ilr_seed_harvest_data[crop_id_short]["is-winter-crop"]
 
-                        if nuts3_regions_crs not in tcoords:
-                            tcoords[nuts3_regions_crs] = soil_crs_to_x_transformers[nuts3_regions_crs].transform(sr, sh)
-                        n3r, n3h = tcoords[nuts3_regions_crs]
-                        nuts3_region_id = int(nuts3_regions_interpolate(n3r, n3h))
-                        if not nuts3_region_id or (len(nuts3_region_ids) > 0 and nuts3_region_id not in nuts3_region_ids):
-                            continue
+                            if setup[
+                                "sowing-date"] == "fixed":  # fixed indicates that regionally fixed sowing dates will be used
+                                sowing_date = seed_harvest_data["sowing-date"]
+                            elif setup[
+                                "sowing-date"] == "auto":  # auto indicates that automatic sowng dates will be used that vary between regions
+                                sowing_date = seed_harvest_data["latest-sowing-date"]
+                            elif setup[
+                                "sowing-date"] == "fixed1":  # fixed1 indicates that a fixed sowing date will be used that is the same for entire germany
+                                sowing_date = sowing_ws["date"]
 
-                        if soil_id in soil_id_cache:
-                            soil_profile = soil_id_cache[soil_id]
-                        else:
-                            soil_profile = soil_io3.soil_parameters(soil_db_con, soil_id)
-                            soil_id_cache[soil_id] = soil_profile
-                        if not soil_profile or len(soil_profile) == 0:
-                            continue
+                            sds = [int(x) for x in sowing_date.split("-")]
+                            sd = date(2001, sds[1], sds[2])
+                            sdoy = sd.timetuple().tm_yday
 
-                        worksteps = env_template["cropRotation"][0]["worksteps"]
-                        sowing_ws = next(filter(lambda ws: ws["type"][-6:] == "Sowing", worksteps))
-                        harvest_ws = next(filter(lambda ws: ws["type"][-7:] == "Harvest", worksteps))
+                            if setup[
+                                "harvest-date"] == "fixed":  # fixed indicates that regionally fixed harvest dates will be used
+                                harvest_date = seed_harvest_data["harvest-date"]
+                            elif setup[
+                                "harvest-date"] == "auto":  # auto indicates that automatic harvest dates will be used that vary between regions
+                                harvest_date = seed_harvest_data["latest-harvest-date"]
+                            elif setup[
+                                "harvest-date"] == "auto1":  # fixed1 indicates that a fixed harvest date will be used that is the same for entire germany
+                                harvest_date = harvest_ws["latest-date"]
 
-                        ilr_interpolate = ilr_seed_harvest_data[crop_id_short]["interpolate"]
-                        seed_harvest_cs = ilr_interpolate(sr, sh) if ilr_interpolate else None
+                            hds = [int(x) for x in harvest_date.split("-")]
+                            hd = date(2001, hds[1], hds[2])
+                            hdoy = hd.timetuple().tm_yday
 
-                        # set external seed/harvest dates
-                        if seed_harvest_cs:
-                            seed_harvest_data = ilr_seed_harvest_data[crop_id_short]["data"][seed_harvest_cs]
-                            if seed_harvest_data:
-                                is_winter_crop = ilr_seed_harvest_data[crop_id_short]["is-winter-crop"]
+                            esds = [int(x) for x in seed_harvest_data["earliest-sowing-date"].split("-")]
+                            esd = date(2001, esds[1], esds[2])
 
-                                if setup[
-                                    "sowing-date"] == "fixed":  # fixed indicates that regionally fixed sowing dates will be used
-                                    sowing_date = seed_harvest_data["sowing-date"]
-                                elif setup[
-                                    "sowing-date"] == "auto":  # auto indicates that automatic sowng dates will be used that vary between regions
-                                    sowing_date = seed_harvest_data["latest-sowing-date"]
-                                elif setup[
-                                    "sowing-date"] == "fixed1":  # fixed1 indicates that a fixed sowing date will be used that is the same for entire germany
-                                    sowing_date = sowing_ws["date"]
+                            # sowing after harvest should probably never occur in both fixed setup!
+                            if setup["sowing-date"] == "fixed" and setup["harvest-date"] == "fixed":
+                                # calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy-1))
+                                if is_winter_crop:
+                                    calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy - 1))
+                                else:
+                                    calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
+                                sowing_ws["date"] = seed_harvest_data["sowing-date"]
+                                harvest_ws["date"] = "{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month,
+                                                                                   calc_harvest_date.day)
+                            elif setup["sowing-date"] == "fixed" and setup["harvest-date"] == "auto":
+                                if is_winter_crop:
+                                    calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy - 1))
+                                else:
+                                    calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
+                                sowing_ws["date"] = seed_harvest_data["sowing-date"]
+                                harvest_ws["latest-date"] = "{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month,
+                                                                                          calc_harvest_date.day)
+                            elif setup["sowing-date"] == "fixed" and setup["harvest-date"] == "auto1":
+                                if is_winter_crop:
+                                    calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy - 1))
+                                else:
+                                    calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
+                                sowing_ws["date"] = seed_harvest_data["sowing-date"]
+                                harvest_ws["latest-date"] = "{:04d}-{:02d}-{:02d}".format(hds[0], hds[1], hds[2])
 
-                                sds = [int(x) for x in sowing_date.split("-")]
-                                sd = date(2001, sds[1], sds[2])
-                                sdoy = sd.timetuple().tm_yday
+                            elif setup["sowing-date"] == "auto" and setup["harvest-date"] == "fixed":
+                                sowing_ws["earliest-date"] = seed_harvest_data["earliest-sowing-date"] if esd > date(
+                                    esd.year, 6, 20) else "{:04d}-{:02d}-{:02d}".format(sds[0], 6, 20)
+                                calc_sowing_date = date(2000, 12, 31) + timedelta(days=max(hdoy + 1, sdoy))
+                                sowing_ws["latest-date"] = "{:04d}-{:02d}-{:02d}".format(sds[0], calc_sowing_date.month,
+                                                                                         calc_sowing_date.day)
+                                harvest_ws["date"] = seed_harvest_data["harvest-date"]
 
-                                if setup[
-                                    "harvest-date"] == "fixed":  # fixed indicates that regionally fixed harvest dates will be used
-                                    harvest_date = seed_harvest_data["harvest-date"]
-                                elif setup[
-                                    "harvest-date"] == "auto":  # auto indicates that automatic harvest dates will be used that vary between regions
-                                    harvest_date = seed_harvest_data["latest-harvest-date"]
-                                elif setup[
-                                    "harvest-date"] == "auto1":  # fixed1 indicates that a fixed harvest date will be used that is the same for entire germany
-                                    harvest_date = harvest_ws["latest-date"]
-
-                                hds = [int(x) for x in harvest_date.split("-")]
-                                hd = date(2001, hds[1], hds[2])
-                                hdoy = hd.timetuple().tm_yday
-
-                                esds = [int(x) for x in seed_harvest_data["earliest-sowing-date"].split("-")]
-                                esd = date(2001, esds[1], esds[2])
-
-                                # sowing after harvest should probably never occur in both fixed setup!
-                                if setup["sowing-date"] == "fixed" and setup["harvest-date"] == "fixed":
-                                    # calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy-1))
-                                    if is_winter_crop:
-                                        calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy - 1))
-                                    else:
-                                        calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
-                                    sowing_ws["date"] = seed_harvest_data["sowing-date"]
-                                    harvest_ws["date"] = "{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month,
+                            elif setup["sowing-date"] == "auto" and setup["harvest-date"] == "auto":
+                                sowing_ws["earliest-date"] = seed_harvest_data["earliest-sowing-date"] if esd > date(
+                                    esd.year, 6, 20) else "{:04d}-{:02d}-{:02d}".format(sds[0], 6, 20)
+                                if is_winter_crop:
+                                    calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy - 1))
+                                else:
+                                    calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
+                                sowing_ws["latest-date"] = seed_harvest_data["latest-sowing-date"]
+                                harvest_ws["latest-date"] = "{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month,
+                                                                                          calc_harvest_date.day)
+                            elif setup["sowing-date"] == "fixed1" and setup["harvest-date"] == "fixed":
+                                # calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy-1))
+                                if is_winter_crop:
+                                    calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy - 1))
+                                else:
+                                    calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
+                                sowing_ws["date"] = sowing_date
+                                # print(seed_harvest_data["sowing-date"])
+                                harvest_ws["date"] = "{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month,
                                                                                        calc_harvest_date.day)
-                                elif setup["sowing-date"] == "fixed" and setup["harvest-date"] == "auto":
-                                    if is_winter_crop:
-                                        calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy - 1))
-                                    else:
-                                        calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
-                                    sowing_ws["date"] = seed_harvest_data["sowing-date"]
-                                    harvest_ws["latest-date"] = "{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month,
-                                                                                              calc_harvest_date.day)
-                                elif setup["sowing-date"] == "fixed" and setup["harvest-date"] == "auto1":
-                                    if is_winter_crop:
-                                        calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy - 1))
-                                    else:
-                                        calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
-                                    sowing_ws["date"] = seed_harvest_data["sowing-date"]
-                                    harvest_ws["latest-date"] = "{:04d}-{:02d}-{:02d}".format(hds[0], hds[1], hds[2])
 
-                                elif setup["sowing-date"] == "auto" and setup["harvest-date"] == "fixed":
-                                    sowing_ws["earliest-date"] = seed_harvest_data["earliest-sowing-date"] if esd > date(
-                                        esd.year, 6, 20) else "{:04d}-{:02d}-{:02d}".format(sds[0], 6, 20)
-                                    calc_sowing_date = date(2000, 12, 31) + timedelta(days=max(hdoy + 1, sdoy))
-                                    sowing_ws["latest-date"] = "{:04d}-{:02d}-{:02d}".format(sds[0], calc_sowing_date.month,
-                                                                                             calc_sowing_date.day)
-                                    harvest_ws["date"] = seed_harvest_data["harvest-date"]
+                    env_template["params"]["userCropParameters"]["__enable_T_response_leaf_expansion__"] = setup[
+                        "LeafExtensionModifier"]
 
-                                elif setup["sowing-date"] == "auto" and setup["harvest-date"] == "auto":
-                                    sowing_ws["earliest-date"] = seed_harvest_data["earliest-sowing-date"] if esd > date(
-                                        esd.year, 6, 20) else "{:04d}-{:02d}-{:02d}".format(sds[0], 6, 20)
-                                    if is_winter_crop:
-                                        calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy - 1))
-                                    else:
-                                        calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
-                                    sowing_ws["latest-date"] = seed_harvest_data["latest-sowing-date"]
-                                    harvest_ws["latest-date"] = "{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month,
-                                                                                              calc_harvest_date.day)
-                                elif setup["sowing-date"] == "fixed1" and setup["harvest-date"] == "fixed":
-                                    # calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy-1))
-                                    if is_winter_crop:
-                                        calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy - 1))
-                                    else:
-                                        calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
-                                    sowing_ws["date"] = sowing_date
-                                    # print(seed_harvest_data["sowing-date"])
-                                    harvest_ws["date"] = "{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month,
-                                                                                       calc_harvest_date.day)
-                        # check if current grid cell is used for agriculture
-                        if setup["landcover"]:
-                            if landuse_crs not in tcoords:
-                                tcoords[landuse_crs] = soil_crs_to_x_transformers[landuse_crs].transform(sr, sh)
-                            lur, luh = tcoords[landuse_crs]
-                            landuse_id = landuse_interpolate(lur, luh)
-                            if landuse_id not in [2, 3, 4]:
-                                continue
+                    # print("soil:", soil_profile)
+                    env_template["params"]["siteParameters"]["SoilProfileParameters"] = soil_profile
 
-                        if dem_crs not in tcoords:
-                            tcoords[dem_crs] = soil_crs_to_x_transformers[dem_crs].transform(sr, sh)
-                        demr, demh = tcoords[dem_crs]
-                        height_nn = dem_interpolate(demr, demh)
+                    if setup["elevation"]:
+                        env_template["params"]["siteParameters"]["heightNN"] = cell_data["height_nn"]
 
-                        if slope_crs not in tcoords:
-                            tcoords[slope_crs] = soil_crs_to_x_transformers[slope_crs].transform(sr, sh)
-                        slr, slh = tcoords[slope_crs]
-                        slope = slope_interpolate(slr, slh)
+                    if setup["slope"]:
+                        env_template["params"]["siteParameters"]["slope"] = cell_data["slope"] / 100.0
 
-                        env_template["params"]["userCropParameters"]["__enable_T_response_leaf_expansion__"] = setup[
-                            "LeafExtensionModifier"]
+                    if setup["latitude"]:
+                        clat, _ = cdict[(crow, ccol)]
+                        env_template["params"]["siteParameters"]["Latitude"] = clat
 
-                        # print("soil:", soil_profile)
-                        env_template["params"]["siteParameters"]["SoilProfileParameters"] = soil_profile
+                    if setup["CO2"]:
+                        env_template["params"]["userEnvironmentParameters"]["AtmosphericCO2"] = float(setup["CO2"])
 
-                        # setting groundwater level
-                        if setup["groundwater-level"]:
-                            groundwaterlevel = 20
-                            layer_depth = 0
-                            for layer in soil_profile:
-                                if layer.get("is_in_groundwater", False):
-                                    groundwaterlevel = layer_depth
-                                    # print("setting groundwaterlevel of soil_id:", str(soil_id), "to", groundwaterlevel, "m")
-                                    break
-                                layer_depth += monica_run_lib.get_value(layer["Thickness"])
-                            env_template["params"]["userEnvironmentParameters"]["MinGroundwaterDepthMonth"] = 3
-                            env_template["params"]["userEnvironmentParameters"]["MinGroundwaterDepth"] = [
-                                max(0, groundwaterlevel - 0.2), "m"]
-                            env_template["params"]["userEnvironmentParameters"]["MaxGroundwaterDepth"] = [
-                                groundwaterlevel + 0.2, "m"]
+                    if setup["O3"]:
+                        env_template["params"]["userEnvironmentParameters"]["AtmosphericO3"] = float(setup["O3"])
 
-                        # setting impenetrable layer
-                        if setup["impenetrable-layer"]:
-                            impenetrable_layer_depth = monica_run_lib.get_value(
-                                env_template["params"]["userEnvironmentParameters"]["LeachingDepth"])
-                            layer_depth = 0
-                            for layer in soil_profile:
-                                if layer.get("is_impenetrable", False):
-                                    impenetrable_layer_depth = layer_depth
-                                    # print("setting leaching depth of soil_id:", str(soil_id), "to", impenetrable_layer_depth, "m")
-                                    break
-                                layer_depth += monica_run_lib.get_value(layer["Thickness"])
-                            env_template["params"]["userEnvironmentParameters"]["LeachingDepth"] = \
-                                [impenetrable_layer_depth, "m"]
-                            env_template["params"]["siteParameters"]["ImpenetrableLayerDepth"] = \
-                                [impenetrable_layer_depth, "m"]
+                    if setup["FieldConditionModifier"]:
+                        env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["species"][
+                            "FieldConditionModifier"] = float(setup["FieldConditionModifier"])
 
-                        if setup["elevation"]:
-                            env_template["params"]["siteParameters"]["heightNN"] = float(height_nn)
+                    if setup["StageTemperatureSum"]:
+                        stage_ts = setup["StageTemperatureSum"].split('_')
+                        stage_ts = [int(temp_sum) for temp_sum in stage_ts]
+                        orig_stage_ts = env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"]["="][
+                            "StageTemperatureSum"][0]
+                        if len(stage_ts) != len(orig_stage_ts):
+                            stage_ts = orig_stage_ts
+                            print('The provided StageTemperatureSum array is not '
+                                  'sufficiently long. Falling back to original StageTemperatureSum')
 
-                        if setup["slope"]:
-                            env_template["params"]["siteParameters"]["slope"] = slope / 100.0
+                        env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"]["="][
+                            "StageTemperatureSum"][0] = stage_ts
 
-                        if setup["latitude"]:
-                            clat, _ = cdict[(crow, ccol)]
-                            env_template["params"]["siteParameters"]["Latitude"] = clat
+                    env_template["params"]["simulationParameters"]["UseNMinMineralFertilisingMethod"] = setup[
+                        "fertilization"]
+                    env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = setup["irrigation"]
 
-                        if setup["CO2"]:
-                            env_template["params"]["userEnvironmentParameters"]["AtmosphericCO2"] = float(setup["CO2"])
+                    env_template["params"]["simulationParameters"]["NitrogenResponseOn"] = setup["NitrogenResponseOn"]
+                    env_template["params"]["simulationParameters"]["WaterDeficitResponseOn"] = setup[
+                        "WaterDeficitResponseOn"]
+                    env_template["params"]["simulationParameters"]["EmergenceMoistureControlOn"] = setup[
+                        "EmergenceMoistureControlOn"]
+                    env_template["params"]["simulationParameters"]["EmergenceFloodingControlOn"] = setup[
+                        "EmergenceFloodingControlOn"]
 
-                        if setup["O3"]:
-                            env_template["params"]["userEnvironmentParameters"]["AtmosphericO3"] = float(setup["O3"])
+                    env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
 
-                        if setup["FieldConditionModifier"]:
-                            env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["species"][
-                                "FieldConditionModifier"] = float(setup["FieldConditionModifier"])
+                    env_template["pathToClimateCSV"] = \
+                        paths["monica-path-to-climate-dir"] + \
+                        f"dwd/csvs/germany_ubn_1901-01-01_to_2022-09-30/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
+                    print("pathToClimateCSV:", env_template["pathToClimateCSV"])
 
-                        if setup["StageTemperatureSum"]:
-                            stage_ts = setup["StageTemperatureSum"].split('_')
-                            stage_ts = [int(temp_sum) for temp_sum in stage_ts]
-                            orig_stage_ts = env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"]["="][
-                                "StageTemperatureSum"][0]
-                            if len(stage_ts) != len(orig_stage_ts):
-                                stage_ts = orig_stage_ts
-                                print('The provided StageTemperatureSum array is not '
-                                      'sufficiently long. Falling back to original StageTemperatureSum')
+                    env_template["customId"] = {
+                        "setup_id": setup_id,
+                        "srow": srow, "scol": scol,
+                        "crow": int(crow), "ccol": int(ccol),
+                        "soil_id": soil_id,
+                        "env_id": sent_env_count+1,
+                        "nodata": False,
+                        "nuts3_region_id": cell_data["nuts3_region_id"],
+                    }
 
-                            env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"]["="][
-                                "StageTemperatureSum"][0] = stage_ts
+                    sent_env_count += 1
 
-                        env_template["params"]["simulationParameters"]["UseNMinMineralFertilisingMethod"] = setup[
-                            "fertilization"]
-                        env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = setup["irrigation"]
+                    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                        _.write(f"{datetime.now()} Sending jobs out (producer)\n")
 
-                        env_template["params"]["simulationParameters"]["NitrogenResponseOn"] = setup["NitrogenResponseOn"]
-                        env_template["params"]["simulationParameters"]["WaterDeficitResponseOn"] = setup[
-                            "WaterDeficitResponseOn"]
-                        env_template["params"]["simulationParameters"]["EmergenceMoistureControlOn"] = setup[
-                            "EmergenceMoistureControlOn"]
-                        env_template["params"]["simulationParameters"]["EmergenceFloodingControlOn"] = setup[
-                            "EmergenceFloodingControlOn"]
+                    socket.send_json(env_template)
+                    print("sent env ", sent_env_count, " customId: ", env_template["customId"])
 
-                        env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
-
-                        env_template["pathToClimateCSV"] = \
-                            paths["monica-path-to-climate-dir"] + \
-                            f"dwd/csvs/germany_ubn_1901-01-01_to_2022-09-30/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
-                        print("pathToClimateCSV:", env_template["pathToClimateCSV"])
-
-                        env_template["customId"] = {
-                            "setup_id": setup_id,
-                            "srow": srow, "scol": scol,
-                            "crow": int(crow), "ccol": int(ccol),
-                            "soil_id": soil_id,
-                            "env_id": sent_env_count+1,
-                            "nodata": False,
-                            "nuts3_region_id": nuts3_region_id,
-                        }
-
-                        sent_env_count += 1
-
-                        with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                            _.write(f"{datetime.now()} Sending jobs out (producer)\n") 
-
-                        socket.send_json(env_template)
-                        print("sent env ", sent_env_count, " customId: ", env_template["customId"])
-
-                        with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                            _.write(f"{datetime.now()} Ended jobs (producer)\n") 
+                    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                        _.write(f"{datetime.now()} Ended jobs (producer)\n")
             except Exception as e:
                 with open(path_to_out_file, "a") as _:
                     _.write(f"raised exception: {e}\n")

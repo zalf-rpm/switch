@@ -22,7 +22,6 @@ from scipy.interpolate import NearestNDInterpolator
 from pyproj import Transformer
 from datetime import date, timedelta
 
-#------------------------------------------------------------------------------------
 
 def read_csv(path_to_setups_csv, key="run-id"):
     "read sim setup from csv file"
@@ -46,7 +45,6 @@ def read_csv(path_to_setups_csv, key="run-id"):
             key_to_data[int(data[key])] = data
         return key_to_data
 
-#------------------------------------------------------------------------------------
 
 def read_sim_setups(path_to_setups_csv):
     "read sim setup from csv file"
@@ -70,7 +68,6 @@ def read_sim_setups(path_to_setups_csv):
             setups[int(data["run-id"])] = data
         return setups
 
-#------------------------------------------------------------------------------------
 
 def read_header(path_to_ascii_grid_file):
     "read metadata from esri ascii grid file"
@@ -85,7 +82,6 @@ def read_header(path_to_ascii_grid_file):
                 metadata[sline[0].strip().lower()] = float(sline[1].strip())
     return metadata, header_str
 
-#------------------------------------------------------------------------------------
 
 def create_ascii_grid_interpolator(grid, meta_data, ignore_nodata=True):
     "read an ascii grid into a map, without the no-data values"
@@ -116,12 +112,12 @@ def create_ascii_grid_interpolator(grid, meta_data, ignore_nodata=True):
             values.append(value)
 
     return NearestNDInterpolator(np.array(points), np.array(values))
-    
-#------------------------------------------------------------------------------------
+
+
 def get_value(list_or_value):
    return list_or_value[0] if isinstance(list_or_value, list) else list_or_value
 
-#------------------------------------------------------------------------------------
+
 def create_seed_harvest_geoGrid_interpolator_and_read_data(path_to_csv_file, worldGeodeticSys84, geoTargetGrid, ilr_seed_harvest_data):
     "read seed/harvest dates and apoint climate stations"
 
@@ -218,7 +214,6 @@ def create_seed_harvest_geoGrid_interpolator_and_read_data(path_to_csv_file, wor
 
         ilr_seed_harvest_data[crop_id]["interpolate"] = NearestNDInterpolator(np.array(points), np.array(values))
 
-#------------------------------------------------------------------------------------
 
 def create_climate_geoGrid_interpolator_from_json_file(path_to_latlon_to_rowcol_file, worldGeodeticSys84, geoTargetGrid, cdict):
     "create interpolator from json list of lat/lon to row/col mappings"
@@ -243,4 +238,3 @@ def create_climate_geoGrid_interpolator_from_json_file(path_to_latlon_to_rowcol_
 
         return NearestNDInterpolator(np.array(points), np.array(values))
 
-#------------------------------------------------------------------------------------

@@ -50,7 +50,7 @@ def get_reader_writer_srs_from_channel(path_to_channel_binary, chan_name=None):
     return {"chan": chan, "reader_sr": reader_sr, "writer_sr": writer_sr}
 
 
-local_run = False
+local_run = True
 
 
 def run_calibration(server=None, prod_port=None, cons_port=None):
@@ -68,10 +68,10 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         "path_to_channel": "/home/berg/GitHub/mas-infrastructure/src/cpp/common/_cmake_debug/channel" if local_run else
         "/home/rpm/start_manual_test_services/GitHub/mas-infrastructure/src/cpp/common/_cmake_release/channel",
         "path_to_python": "python" if local_run else "/home/rpm/.conda/envs/clim4cast/bin/python",
-        "repetitions": "2",
+        "repetitions": "5",
         "test_mode": "false",
         "all_nuts3_regions_one_by_one": False,
-        "only_nuts3_region_ids": "[]",  # "[]",
+        "only_nuts3_region_ids": "[96,360]",  # "[]",
     }
 
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
