@@ -82,8 +82,8 @@ class spot_setup(object):
         s: str = in_ip.content.as_text()
         nuts3_region_id_and_year_to_avg_yield = json.loads(s)
 
-        with open(self.path_to_out_file, "a") as _:
-            _.write(f"{datetime.now()} jsons loaded cal-sp-set-M\n")
+        #with open(self.path_to_out_file, "a") as _:
+        #    _.write(f"{datetime.now()} jsons loaded cal-sp-set-M\n")
         # print("received monica results:", country_id_and_year_to_avg_yield, flush=True)
 
         # remove all simulation results which are not in the observed list
@@ -98,8 +98,8 @@ class spot_setup(object):
             else:
                 sim_list.append(np.nan)
 
-        with open(self.path_to_out_file, "a") as _:
-            _.write(f"{datetime.now()} simulation and observation matchedcal-sp-set-M\n\n")
+        #with open(self.path_to_out_file, "a") as _:
+        #    _.write(f"{datetime.now()} simulation and observation matchedcal-sp-set-M\n\n")
 
         print("len(sim_list):", len(sim_list), "== len(self.obs_list):", len(self.obs_flat_list), flush=True)
         with open(self.path_to_out_file, "a") as _:

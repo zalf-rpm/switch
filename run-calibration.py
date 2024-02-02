@@ -84,7 +84,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
             print("run-calibration.py: Couldn't create dir:", path_to_out_folder, "!")
     path_to_out_file = path_to_out_folder + "/run-calibration.out"
     with open(path_to_out_file, "a") as _:
-        _.write(f"config: {config}\n")
+        _.write(f"{datetime.now()} config: {config}\n")
 
     procs = []
 
@@ -93,8 +93,8 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
     cons_chan_data = get_reader_writer_srs_from_channel(config["path_to_channel"], "cons_chan")
     procs.append(cons_chan_data["chan"])
 
-    with open(path_to_out_folder + "/spot_setup.out", "a") as _:
-        _.write(f"{datetime.now()} Process procs.append(sp.Popen(.()producer\n")
+    #with open(path_to_out_folder + "/spot_setup.out", "a") as _:
+    #    _.write(f"{datetime.now()} Process procs.append(sp.Popen(.()producer\n")
 
     procs.append(sp.Popen([
         config["path_to_python"],
@@ -109,8 +109,8 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         f"path_to_out={config['path_to_out']}",
     ]))
 
-    with open(path_to_out_folder + "/spot_setup.out", "a") as _:
-        _.write(f"{datetime.now()} Process procs.append(sp.Popen(.()consumer\n")
+    #with open(path_to_out_folder + "/spot_setup.out", "a") as _:
+    #    _.write(f"{datetime.now()} Process procs.append(sp.Popen(.()consumer\n")
 
     procs.append(sp.Popen([
         config["path_to_python"],
@@ -142,8 +142,8 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
                     "value": np.nan if yield_t < 0.0 else yield_t * 1000.0  # t/ha -> kg/ha nan is -9999
                 })
 
-    with open(path_to_out_folder + "/spot_setup.out", "a") as _:
-        _.write(f"{datetime.now()} Consumer received and finished\n")
+    #with open(path_to_out_folder + "/spot_setup.out", "a") as _:
+    #    _.write(f"{datetime.now()} Consumer received and finished\n")
     # order obs list by id to avoid mismatch between observation/evaluation lists
     for crop, obs in crop_to_observations.items():
         obs.sort(key=lambda r: [r["id"], r["year"]])
@@ -216,13 +216,13 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         #pcento = percent change allowed in kstop loops before convergence
         sampler.sample(rep, ngs=len(params)*2, peps=0.001, pcento=0.001)
 
-        with open(path_to_out_folder + "/spot_setup.out", "a") as _:
-            _.write(f"{datetime.now()} sampler starts run-cal\n")   
+        #with open(path_to_out_folder + "/spot_setup.out", "a") as _:
+        #    _.write(f"{datetime.now()} sampler starts run-cal\n")
 
         # sampler.sample(rep, nChains = 20, nCr = 3, eps = (10e-6), convergence_limit=1.0)
 
-        with open(path_to_out_folder + "/spot_setup.out", "a") as _:
-            _.write(f"{datetime.now()} sampler ends run-cal\n") 
+        #with open(path_to_out_folder + "/spot_setup.out", "a") as _:
+        #    _.write(f"{datetime.now()} sampler ends run-cal\n")
 
 
         def print_status_final(self, stream):
@@ -268,8 +268,8 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         with open(path_to_best_out_file, "a") as _:
             print_status_final(sampler.status, _)
 
-        with open(path_to_out_folder + "/spot_setup.out", "a") as _:
-            _.write(f"{datetime.now()} results written run-cal\n\n") 
+        #with open(path_to_out_folder + "/spot_setup.out", "a") as _:
+        #    _.write(f"{datetime.now()} results written run-cal\n\n")
 
         #Extract the parameter samples from distribution
         results = spotpy.analyser.load_csv_results(f"{path_to_out_folder}/{nuts3_region_folder_name}_SCEUA_monica_results")

@@ -144,10 +144,10 @@ def run_producer(server={"server": None, "port": None}):
         except OSError:
             print("run-calibration-producer.py: Couldn't create dir:", config["path_to_out"], "!")
     with open(path_to_out_file, "a") as _:
-        _.write(f"config: {config}\n")
+        _.write(f"{datetime.now()}  config: {config}\n")
 
-    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-        _.write(f"{datetime.now()} start producer in producer\n") 
+    #with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+    #    _.write(f"{datetime.now()} start producer in producer\n")
 
     nuts3_region_ids = json.loads(config["only_nuts3_region_ids"])
 
@@ -164,8 +164,8 @@ def run_producer(server={"server": None, "port": None}):
     run_setups = json.loads(config["run-setups"])
     print("read sim setups: ", config["setups-file"])
 
-    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-        _.write(f"{datetime.now()} setup read\n") 
+    #with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+    #    _.write(f"{datetime.now()} setup read\n")
 
     # transforms geospatial coordinates from one coordinate reference system to another
     # transform wgs84 into gk5
@@ -173,8 +173,6 @@ def run_producer(server={"server": None, "port": None}):
     wgs84_crs = CRS.from_epsg(4326)
     utm32_crs = CRS.from_epsg(25832)
     # transformers[wgs84] = Transformer.from_crs(wgs84_crs, gk5_crs, always_xy=True)
-
-
 
     # Load grids
     # note numpy is able to load from a compressed file, ending with .gz or .bz2
@@ -243,8 +241,8 @@ def run_producer(server={"server": None, "port": None}):
     crop_interpolate = monica_run_lib.create_ascii_grid_interpolator(crop_grid, crop_meta)
     print("read: ", path_to_crop_grid)
 
-    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-        _.write(f"{datetime.now()} grids load producer\n\n") 
+    #with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+    #    _.write(f"{datetime.now()} grids load producer\n\n")
 
     # Create the function for the mask. This function will later use the additional column in a setup file!
 
@@ -393,8 +391,8 @@ def run_producer(server={"server": None, "port": None}):
             if msg.which() == "done":
                 break
 
-            with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                _.write(f"{datetime.now()} connected\n") 
+            #with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+            #    _.write(f"{datetime.now()} connected\n")
 
             env_template = None
             start_setup_time = None
@@ -433,8 +431,8 @@ def run_producer(server={"server": None, "port": None}):
                 with open(setup.get("site.json", config["site.json"])) as _:
                     site_json = json.load(_)
 
-                with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                    _.write(f"{datetime.now()} read site and sim json producer\n\n") 
+                #with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                #    _.write(f"{datetime.now()} read site and sim json producer\n\n")
 
                 #site_json["EnvironmentParameters"]["rcp"] = scenario
 
@@ -663,14 +661,14 @@ def run_producer(server={"server": None, "port": None}):
 
                     sent_env_count += 1
 
-                    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                        _.write(f"{datetime.now()} Sending jobs out (producer)\n")
+                    #with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                    #    _.write(f"{datetime.now()} Sending jobs out (producer)\n")
 
                     socket.send_json(env_template)
-                    print("sent env ", sent_env_count, " customId: ", env_template["customId"])
+                    #print("sent env ", sent_env_count, " customId: ", env_template["customId"])
 
-                    with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                        _.write(f"{datetime.now()} Ended jobs (producer)\n")
+                    #with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+                    #    _.write(f"{datetime.now()} Ended jobs (producer)\n")
             except Exception as e:
                 with open(path_to_out_file, "a") as _:
                     _.write(f"raised exception: {e}\n")
@@ -678,8 +676,8 @@ def run_producer(server={"server": None, "port": None}):
                 raise e
 
 
-            with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
-                _.write(f"{datetime.now()} Sending final last message (producer) \n") 
+            #with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
+            #    _.write(f"{datetime.now()} Sending final last message (producer) \n")
             # send a last message will be just forwarded by monica to signify last
             if env_template:
                 env_template["pathToClimateCSV"] = ""
