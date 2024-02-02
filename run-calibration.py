@@ -50,7 +50,7 @@ def get_reader_writer_srs_from_channel(path_to_channel_binary, chan_name=None):
     return {"chan": chan, "reader_sr": reader_sr, "writer_sr": writer_sr}
 
 
-local_run = True
+local_run = False
 
 
 def run_calibration(server=None, prod_port=None, cons_port=None):
@@ -71,7 +71,7 @@ def run_calibration(server=None, prod_port=None, cons_port=None):
         "repetitions": "5",
         "test_mode": "false",
         "all_nuts3_regions_one_by_one": False,
-        "only_nuts3_region_ids": "[96,360]",  # "[]",
+        "only_nuts3_region_ids": "[]",  # "[]",
     }
 
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
