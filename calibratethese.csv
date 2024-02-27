@@ -1,3 +1,3 @@
 name,position in array,low,high,step,optguess,minbound,maxbound,derived params
-CropSpecificMaxRootingDepth,,0.8,2,,,,,
-VernalisationRequirement,1,25,100,,,,,
+SpecificLeafArea,,0.5,1.5,,,,,
+MaxAssimilationRate,,26,35,,,,,
