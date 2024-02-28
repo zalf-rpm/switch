@@ -297,7 +297,7 @@ def run_producer(server={"server": None, "port": None}):
 
                 setup = setups[setup_id]
                 crop_id = setup["crop-id"]
-                region_name = setup["region_name"]
+                #region_name = setup["region_name"]
 
                 ## extract crop_id from crop-id name that has possible an extenstion
                 crop_id_short = crop_id.split('_')[0]
@@ -305,15 +305,15 @@ def run_producer(server={"server": None, "port": None}):
                 with open(config["path_to_out"] + "/spot_setup.out", "a") as _:
                     _.write(f"{datetime.now()} setup started producer\n") 
 
-                if region_name and len(region_name) > 0:
+                #if region_name and len(region_name) > 0:
                     # Create the soil mask for the specific region
-                    path_to_soil_grid_ow = paths["path-to-data-dir"] + DATA_GRID_SOIL_OW
-                    mask = create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid_ow)
+                    #path_to_soil_grid_ow = paths["path-to-data-dir"] + DATA_GRID_SOIL_OW
+                    #mask = create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid_ow)
 
                     # Apply the soil mask to the soil grid
-                    soil_grid_copy = soil_grid.copy()
-                    soil_grid[mask == False] = -8888
-                    soil_grid[soil_grid_copy == -9999] = -9999
+                    #soil_grid_copy = soil_grid.copy()
+                    #soil_grid[mask == False] = -8888
+                    #soil_grid[soil_grid_copy == -9999] = -9999
 
                 # add crop id from setup file
                 try:
