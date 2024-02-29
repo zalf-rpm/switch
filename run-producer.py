@@ -721,7 +721,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 # set UseAutomaticIrrigation to True if irrigation setup is True and irrigation is 1
                 if setup["irrigation"] and irrigation == 1:
                     # check if the crop type is in the irrigated crops map
-                    if irrigation_manager.should_be_irrigated_by_crop_id()(setup["crop-id"]):
+                    if irrigation_manager.should_be_irrigated_by_crop_id(setup["crop-id"]):
                         env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = True
                         # add default values for irrigation amount and threshold
                         env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["amount"] = [10, "mm"]
