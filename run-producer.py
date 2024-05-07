@@ -103,8 +103,8 @@ DATA_GRID_CROPS = "germany/OWgermany-crop-ww_1000_25832_etrs89-utm32n.asc"  # Ad
 TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/latlon-to-rowcol.json"
 TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/row-{crow}/col-{ccol}.csv"
 
-# Additional data for masking the regions
-NUTS3_REGIONS = "data/germany/NUTS_RG_03M_25832.shp"
+# Additional data for masking the regions  ###NUTS_RG_03M_25832.shp
+NUTS3_REGIONS = "data/germany/area.shp"
 
 TEMPLATE_PATH_HARVEST = "{path_to_data_dir}/projects/monica-germany/ILR_SEED_HARVEST_doys_{crop_id}.csv"
 
