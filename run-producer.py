@@ -625,13 +625,13 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                     continue
 
                 # check if current grid cell is used for agriculture                
-                if setup["landcover"]:
-                    if landuse_crs not in tcoords:
-                        tcoords[landuse_crs] = soil_crs_to_x_transformers[landuse_crs].transform(sr, sh)
-                    lur, luh = tcoords[landuse_crs]
-                    landuse_id = landuse_interpolate(lur, luh)
-                    if landuse_id not in [2, 3, 4]:
-                        continue
+                # if setup["landcover"]:
+                #     if landuse_crs not in tcoords:
+                #         tcoords[landuse_crs] = soil_crs_to_x_transformers[landuse_crs].transform(sr, sh)
+                #     lur, luh = tcoords[landuse_crs]
+                #     landuse_id = landuse_interpolate(lur, luh)
+                #     if landuse_id not in [2, 3, 4]:
+                #         continue
 
                 if dem_crs not in tcoords:
                     tcoords[dem_crs] = soil_crs_to_x_transformers[dem_crs].transform(sr, sh)
