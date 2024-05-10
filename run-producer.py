@@ -92,7 +92,7 @@ DATA_SOIL_DB = "germany/buek200.sqlite"
 DATA_GRID_HEIGHT = "germany/dem_100_25832_etrs89-utm32n.asc"
 DATA_GRID_SLOPE = "germany/slope_100_25832_etrs89-utm32n.asc"
 DATA_GRID_SOIL = "germany/buek200_100_25832_etrs89-utm32n.asc"
-DATA_GRID_CROPS = "germany/BRA-crop-wr_100_25832_etrs89-utm32n.asc" #BRA-crop-ww_100_25832_etrs89-utm32n
+DATA_GRID_CROPS = "germany/BRA2018-crop-wr_100_25832_etrs89-utm32n.asc" #BRA-crop-ww_100_25832_etrs89-utm32n
 
 # DATA_GRID_LAND_USE = "germany/landuse_1000_31469_gk5.asc"
 # DATA_GRID_SOIL_OW = "germany/buek200_1000_25832_etrs89-utm32n_OW.asc"
@@ -259,7 +259,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
     def create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid):
         regions_df = gpd.read_file(NUTS3_REGIONS)
-        region = regions_df[regions_df["NUTS_NAME"] == region_name]
+        region = regions_df[regions_df["Name"] == region_name]
 
         # This is needed to read the transformation data correctly from the file. With the original opening it does not work
         with rasterio.open(path_to_soil_grid) as dataset:
