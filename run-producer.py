@@ -793,11 +793,11 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                     "crow": int(crow), "ccol": int(ccol),
                     "soil_id": soil_id,
                     "env_id": sent_env_count,
+                    "is_sensitivity_analysis": is_sensitivity_analysis,
                     "param_name": p_name,
                     "param_value": p_value,
                     "nodata": False
                 }
-                
 
                 print("Harvest type:", setup["harvest-date"])
                 print("Srow: ", env_template["customId"]["srow"], "Scol:", env_template["customId"]["scol"])
@@ -831,11 +831,12 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                             print("WARNING: Row ", (sent_env_count - 1), " already exists")
             # print("unknown_soil_ids:", unknown_soil_ids)
 
-        if env_template:
+        if env_template and is_sensitivity_analysis:
             env_template["pathToClimateCSV"] = ""
             env_template["customId"] = {
                 "setup_id": setup_id,
                 "no_of_sent_envs": sent_env_count,
+                "is_sensitivity_analysis": is_sensitivity_analysis,
             }
             socket.send_json(env_template)
 
