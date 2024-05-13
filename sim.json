@@ -5,7 +5,9 @@
 	"climate.csv": "",
 
 	"climate.csv-options": {
-        "no-of-climate-file-header-lines": 1,
+		"_start-date": "1991-01-01",
+        "_end-date": "2022-09-30",
+		"no-of-climate-file-header-lines": 1,
         "csv-separator": "\t",
         "header-to-acd-names": {
 			"Date": "iso-date",
