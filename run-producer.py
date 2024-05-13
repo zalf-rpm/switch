@@ -785,7 +785,10 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 # env_template["pathToClimateCSV"] = \
                 #     paths["monica-path-to-climate-dir"] + \
                 #     f"dwd/csvs/germany_ubn_1901-01-01_to_2022-09-30/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
-                # print("pathToClimateCSV:", env_template["pathToClimateCSV"])
+                print("pathToClimateCSV:", env_template["pathToClimateCSV"])
+
+                if DEBUG_WRITE_CLIMATE:
+                    listOfClimateFiles.add(subpath_to_csv)
 
                 env_template["customId"] = {
                     "setup_id": setup_id,
