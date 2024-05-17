@@ -49,9 +49,7 @@
 				["CM-count", "LAST"],
 				["Year", "LAST"],
 				["Crop", "LAST"],
-				["N2O", "AVG"],
-				["AtmCO2", "AVG"],
-				["NO3", "AVG"]
+				"N2O", "AtmCO2", "N2Odenit"
 			]
 		]
 	},
