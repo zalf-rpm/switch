@@ -50,7 +50,8 @@
 				["Year", "LAST"],
 				["Crop", "LAST"],
 				["N2O", "AVG"],
-				["AtmCO2", "AVG"]
+				["AtmCO2", "AVG"],
+				["NO3", "AVG"]
 			]
 		]
 	},
