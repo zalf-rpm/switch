@@ -26,12 +26,12 @@
 	"include-file-base-path": "data/params/",
 	
 	"output": { 
-	  "write-file?": false,
+	  "write-file?": true,
 		"file-name": "out.csv",
 	
 		"csv-options": {
 			"include-header-row": true,
-			"include-units-row": false,
+			"include-units-row": true,
 			"csv-separator": ","
 		},
 
@@ -43,13 +43,13 @@
 				["Year", "LAST"],
 				["Crop", "FIRST"],
 				["Yield", "LAST"],
-				["AbBiom", "LAST"]
+				["SOC", "AVG"],
+				["N2O","AVG"]
 			],
 			"yearly", [
-				["CM-count", "LAST"],
-				["Year", "LAST"],
-				["Crop", "LAST"],
-				"N2O", "AtmCO2", "N2Odenit"
+				["N","AVG"], 
+				["AtmCO2","AVG"], 
+				"N2Odenit"
 			]
 		]
 	},
