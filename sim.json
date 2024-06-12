@@ -42,14 +42,7 @@
 				["CM-count", "FIRST"],
 				["Year", "LAST"],
 				["Crop", "FIRST"],
-				["Yield", "LAST"],
-				["SOC", "AVG"],
-				["N2O","AVG"]
-			],
-			"yearly", [
-				["N","AVG"], 
-				["AtmCO2","AVG"], 
-				"N2Odenit"
+				["Yield", "LAST"]
 			]
 		]
 	},
