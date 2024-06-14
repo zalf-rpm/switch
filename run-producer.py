@@ -142,8 +142,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None, crop_dat
         "site.json": "site.json",
         "setups-file": "sim_setups_LF.csv",
         "run-setups": "[1]",
-        "shared_id": shared_id,
-        "crop_data":crop_data
+        "shared_id": shared_id
     }
 
     # read commandline args only if script is invoked directly from commandline
