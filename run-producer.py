@@ -92,7 +92,7 @@ DATA_SOIL_DB = "germany/buek200.sqlite"
 DATA_GRID_HEIGHT = "germany/dem_100_25832_etrs89-utm32n.asc"
 DATA_GRID_SLOPE = "germany/slope_100_25832_etrs89-utm32n.asc"
 DATA_GRID_SOIL = "germany/buek200_100_25832_etrs89-utm32n.asc"
-DATA_GRID_CROPS = "germany/{crop_data}" 
+# DATA_GRID_CROPS = "germany/"+ "crop_data"
 
 # DATA_GRID_LAND_USE = "germany/landuse_1000_31469_gk5.asc"
 # DATA_GRID_SOIL_OW = "germany/buek200_1000_25832_etrs89-utm32n_OW.asc"
@@ -124,7 +124,7 @@ DEBUG_WRITE_CLIMATE = False
 ## Make a list of the parameter values first
 
 # commandline parameters e.g "server=localhost port=6666 shared_id=2"
-def run_producer(server={"server": None, "port": None}, shared_id=None):
+def run_producer(server={"server": None, "port": None}, shared_id=None, crop_data=None):
     
     context = zmq.Context()
     socket = context.socket(zmq.PUSH)  # pylint: disable=no-member
@@ -189,6 +189,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     ## note numpy is able to load from a compressed file, ending with .gz or .bz2
 
     # soil data
+    
     path_to_soil_grid = paths["path-to-data-dir"] + DATA_GRID_SOIL
     soil_epsg_code = int(path_to_soil_grid.split("/")[-1].split("_")[2])
     soil_crs = CRS.from_epsg(soil_epsg_code)
@@ -232,6 +233,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # print("read: ", path_to_landuse_grid)
 
     # crop mask data
+    DATA_GRID_CROPS="germany/"+crop_data
     path_to_crop_grid = paths["path-to-data-dir"]+DATA_GRID_CROPS
     crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
     crop_crs = CRS.from_epsg(crop_epsg_code)
