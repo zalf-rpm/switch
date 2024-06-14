@@ -124,7 +124,7 @@ DEBUG_WRITE_CLIMATE = False
 ## Make a list of the parameter values first
 
 # commandline parameters e.g "server=localhost port=6666 shared_id=2"
-def run_producer(server={"server": None, "port": None}, shared_id=None, crop_data="crop_data"):
+def run_producer(server={"server": None, "port": None}, shared_id=None, crop_data=None):
     
     context = zmq.Context()
     socket = context.socket(zmq.PUSH)  # pylint: disable=no-member
@@ -142,7 +142,8 @@ def run_producer(server={"server": None, "port": None}, shared_id=None, crop_dat
         "site.json": "site.json",
         "setups-file": "sim_setups_LF.csv",
         "run-setups": "[1]",
-        "shared_id": shared_id
+        "shared_id": shared_id,
+        "crop_data":crop_data
     }
 
     # read commandline args only if script is invoked directly from commandline
