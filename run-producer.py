@@ -232,7 +232,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # print("read: ", path_to_landuse_grid)
 
     # crop mask data
-    path_to_crop_grid = paths["path-to-data-dir"]+crop_data
+    path_to_crop_grid = paths["path-to-data-dir"]+DATA_GRID_CROPS
     crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
     crop_crs = CRS.from_epsg(crop_epsg_code)
     if crop_crs not in soil_crs_to_x_transformers:
