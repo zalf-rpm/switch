@@ -167,7 +167,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     rs_ranges = config["run-setups"][1:-1].split(",")
     run_setups = []
     for rsr in rs_ranges:
-        rs_r = rsr.split("-")
+        rs_r = rsr.split(",")
         if 1 < len(rs_r) <= 2:
             run_setups.extend(range(int(rs_r[0]), int(rs_r[1])+1))
         elif len(rs_r) == 1:
