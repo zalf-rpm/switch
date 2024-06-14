@@ -92,7 +92,7 @@ DATA_SOIL_DB = "germany/buek200.sqlite"
 DATA_GRID_HEIGHT = "germany/dem_100_25832_etrs89-utm32n.asc"
 DATA_GRID_SLOPE = "germany/slope_100_25832_etrs89-utm32n.asc"
 DATA_GRID_SOIL = "germany/buek200_100_25832_etrs89-utm32n.asc"
-DATA_GRID_CROPS = "germany/{crop_data}" 
+
 
 # DATA_GRID_LAND_USE = "germany/landuse_1000_31469_gk5.asc"
 # DATA_GRID_SOIL_OW = "germany/buek200_1000_25832_etrs89-utm32n_OW.asc"
@@ -125,6 +125,7 @@ DEBUG_WRITE_CLIMATE = False
 
 # commandline parameters e.g "server=localhost port=6666 shared_id=2"
 def run_producer(server={"server": None, "port": None}, shared_id=None):
+    DATA_GRID_CROPS = "germany/{crop_data}" 
     context = zmq.Context()
     socket = context.socket(zmq.PUSH)  # pylint: disable=no-member
     # config_and_no_data_socket = context.socket(zmq.PUSH)
@@ -231,7 +232,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # print("read: ", path_to_landuse_grid)
 
     # crop mask data
-    path_to_crop_grid = paths["path-to-data-dir"] + {crop_data}
+    path_to_crop_grid = paths["path-to-data-dir"]
     crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
     crop_crs = CRS.from_epsg(crop_epsg_code)
     if crop_crs not in soil_crs_to_x_transformers:
@@ -292,7 +293,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         version = setup["version"]
         crop_id = setup["crop-id"]
         region_name = setup["region_name"]
-        crop_data=setup["crop_data"]
+        # crop_data=setup["crop_data"]
 
         ## extract crop_id from crop-id name that has possible an extenstion
         crop_id_short = crop_id.split('_')[0]
