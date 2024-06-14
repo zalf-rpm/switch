@@ -141,7 +141,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         "crop.json": "crop_final.json",
         "site.json": "site.json",
         "setups-file": "sim_setups_LF.csv",
-        "run-setups": "[1]",
+        "run-setups": "[1,2,3,4]",
         "shared_id": shared_id
     }
 
@@ -309,7 +309,6 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         crop_grid = np.loadtxt(path_to_crop_grid, dtype=int, skiprows=6)
         crop_interpolate = Mrunlib.create_ascii_grid_interpolator(crop_grid, crop_meta)
         print("read: ", path_to_crop_grid)
-
 
         if region_name and len(region_name) > 0:
             # Create the soil mask for the specific region
