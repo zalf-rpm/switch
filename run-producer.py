@@ -172,7 +172,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
             run_setups.extend(range(int(rs_r[0]), int(rs_r[1])+1))
         elif len(rs_r) == 1:
             run_setups.append(int(rs_r[0]))
-    #run_setups = json.loads(config["run-setups"])
+    run_setups = json.loads(config["run-setups"])
     print("read sim setups: ", config["setups-file"])
 
     # transforms geospatial coordinates from one coordinate reference system to another
