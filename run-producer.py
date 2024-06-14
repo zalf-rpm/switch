@@ -293,7 +293,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         version = setup["version"]
         crop_id = setup["crop-id"]
         region_name = setup["region_name"]
-        # crop_data=setup["crop_data"]
+        crop_data=setup["crop_data"]
 
         ## extract crop_id from crop-id name that has possible an extenstion
         crop_id_short = crop_id.split('_')[0]
