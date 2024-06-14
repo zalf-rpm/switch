@@ -124,7 +124,7 @@ DEBUG_WRITE_CLIMATE = False
 ## Make a list of the parameter values first
 
 # commandline parameters e.g "server=localhost port=6666 shared_id=2"
-def run_producer(server={"server": None, "port": None}, shared_id=None, crop_data=None):
+def run_producer(server={"server": None, "port": None}, shared_id=None, crop_data="crop_data"):
     
     context = zmq.Context()
     socket = context.socket(zmq.PUSH)  # pylint: disable=no-member
