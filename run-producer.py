@@ -141,7 +141,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         "crop.json": "crop_final.json",
         "site.json": "site.json",
         "setups-file": "sim_setups_LF.csv",
-        "run-setups": "[1]",
+        "run-setups": run_setups,
         "shared_id": shared_id
     }
 
@@ -172,7 +172,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
             run_setups.extend(range(int(rs_r[0]), int(rs_r[1])+1))
         elif len(rs_r) == 1:
             run_setups.append(int(rs_r[0]))
-    run_setups = json.loads(config["run-setups"])
+    # run_setups = json.loads(config["run-setups"])
     print("read sim setups: ", config["setups-file"])
 
     # transforms geospatial coordinates from one coordinate reference system to another
