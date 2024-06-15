@@ -170,7 +170,7 @@ def write_output(output_ids, values, round_ids={}):
     return out
 
 
-def write_output_obj(output_ids, values, round_ids={}):
+def write_output(output_ids, values, round_ids={}):
     "write actual output lines"
     out = []
     for obj in values:
