@@ -42,10 +42,7 @@
 				["CM-count", "FIRST"],
 				["Year", "LAST"],
 				["Crop", "FIRST"],
-				["Yield", "LAST"],
-				["NO2","SUM"],
-				["Denit","SUM"]
-
+				["Yield", "LAST"]
 			]
 		]
 	},
