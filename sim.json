@@ -39,10 +39,16 @@
 
 		"events": [
 			"crop", [
-				["CM-count", "FIRST"],
 				["Year", "LAST"],
 				["Crop", "FIRST"],
-				["Yield", "LAST"]
+				["Yield", "LAST"],
+				["RunOff", "SUM"],
+				["N","SUM"],
+				["NH3","SUM"],
+				["NH4","SUM"],
+				["NO2","SUM"],
+				["Denit","SUM"],
+				["AtmCO2","SUM"]
 			]
 		]
 	},
