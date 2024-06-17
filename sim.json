@@ -43,10 +43,8 @@
 				["Year", "LAST"],
 				["Crop", "FIRST"],
 				["Yield", "LAST"],
-				["AtmCO2","SUM"],
 				["NO2","SUM"],
-				["Denit","SUM"],
-				["N","SUM"]
+				["Denit","SUM"]
 
 			]
 		]
