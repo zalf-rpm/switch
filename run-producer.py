@@ -465,7 +465,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                         else:
                             params[p_name] = p_value
 
-                crop_grid_id = int(crop_grid[srow, scol-1])
+                crop_grid_id = int(crop_grid[srow, scol])
                 # print(crop_grid_id)
                 if crop_grid_id != 1 or soil_id == -8888:
                     # print("row/col:", srow, "/", scol, "is not a crop pixel.")
