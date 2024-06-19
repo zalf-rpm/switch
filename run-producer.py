@@ -235,7 +235,6 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # crop mask data
     # DATA_GRID_CROPS="germany/"
     for _, setup_id in enumerate(run_setups):
-
         if setup_id not in setups:
             continue
         start_setup_time = time.perf_counter()
@@ -293,9 +292,9 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # run calculations for each setup
     for _, setup_id in enumerate(run_setups):
 
-        # if setup_id not in setups:
-        #     continue
-        # start_setup_time = time.perf_counter()
+        if setup_id not in setups:
+            continue
+        start_setup_time = time.perf_counter()
 
         # setup = setups[setup_id]
         gcm = setup["gcm"]
@@ -305,7 +304,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         version = setup["version"]
         crop_id = setup["crop-id"]
         region_name = setup["region_name"]
-        # crop_data=setup["crop_data"]
+    
 
         ## extract crop_id from crop-id name that has possible an extenstion
         crop_id_short = crop_id.split('_')[0]
