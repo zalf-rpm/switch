@@ -293,11 +293,11 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # run calculations for each setup
     for _, setup_id in enumerate(run_setups):
 
-        if setup_id not in setups:
-            continue
-        start_setup_time = time.perf_counter()
+        # if setup_id not in setups:
+        #     continue
+        # start_setup_time = time.perf_counter()
 
-        setup = setups[setup_id]
+        # setup = setups[setup_id]
         gcm = setup["gcm"]
         rcm = setup["rcm"]
         scenario = setup["scenario"]
@@ -465,7 +465,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                         else:
                             params[p_name] = p_value
 
-                crop_grid_id = int(crop_grid[srow, scol])
+                crop_grid_id = int(crop_grid[srow, scol-1])
                 # print(crop_grid_id)
                 if crop_grid_id != 1 or soil_id == -8888:
                     # print("row/col:", srow, "/", scol, "is not a crop pixel.")
