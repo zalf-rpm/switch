@@ -296,7 +296,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
             continue
         start_setup_time = time.perf_counter()
 
-        # setup = setups[setup_id]
+        setup = setups[setup_id]
         gcm = setup["gcm"]
         rcm = setup["rcm"]
         scenario = setup["scenario"]
