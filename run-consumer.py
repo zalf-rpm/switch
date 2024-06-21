@@ -92,9 +92,7 @@ def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, pat
         "N2O": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
         "NH3": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
         "NH4": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "Denit": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "Runoff": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "AtmCO2": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1}
+        "Denit": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1}
     }
     output_keys = list(output_grids.keys())
 

@@ -46,9 +46,7 @@
 				["N2O","SUM"],
 				["Denit","SUM"],
 				["NH3","SUM"],
-				["NH4","SUM"],
-				["Runoff","SUM"],
-				["AtmCO2","SUM"]
+				["NH4","SUM"]
 			]
 		]
 	},
