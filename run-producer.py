@@ -242,7 +242,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         setup = setups[setup_id]
         crop_data=setup["crop_data"]
 
-    DATA_GRID_CROPS = str("germany/"+crop_data)
+    DATA_GRID_CROPS = str("germany/raster/"+crop_data)
     path_to_crop_grid = paths["path-to-data-dir"]+DATA_GRID_CROPS  ###"data/germany/"+crop_data
     crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
     crop_crs = CRS.from_epsg(crop_epsg_code)
