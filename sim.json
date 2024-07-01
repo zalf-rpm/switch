@@ -44,7 +44,9 @@
 				["Crop", "FIRST"],
 				["Yield", "LAST"],
 				["N2O","SUM"],
-				["NH3","SUM"]
+				["NH3","SUM"],
+				["AtmCO2","SUM"],
+				["Denit","SUM"]
 			]
 		]
 	},
