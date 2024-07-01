@@ -46,7 +46,12 @@
 				["N2O","SUM"],
 				["NH3","SUM"],
 				["AtmCO2","SUM"],
-				["Denit","SUM"]
+				["Denit","SUM"],
+				["NH4","SUM"],
+				["N2Odenit","SUM"],
+				["actnitrate","SUM"],
+				["SumNUp","SUM"],
+				["TotBiomN","LAST"]
 			]
 		]
 	},
