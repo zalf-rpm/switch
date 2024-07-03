@@ -40,15 +40,7 @@
 		"events": [
 			"crop", [
 				["CM-count", "FIRST"],
-				["Year", "LAST"],
-				["Crop", "FIRST"],
-				["Yield", "LAST"],
-				["N2O","SUM"],
-				["NH3","SUM"],
-				["AtmCO2","SUM"],
-				["Denit","SUM"],
-				["SumNUp","SUM"],
-				["TotBiomN","LAST"]
+				["Year", "LAST"]
 			]
 		]
 	},
