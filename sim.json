@@ -45,7 +45,8 @@
 				["Yield", "LAST"],
 				["SumNUp","LAST"],
 				["TotBiomN","LAST"],
-				["Denit","LAST"]
+				["Denit","LAST"],
+				["AtmCO2","LAST"]
 			]
 		]
 	},
