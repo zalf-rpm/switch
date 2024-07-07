@@ -45,8 +45,9 @@
 				["Yield", "LAST"],
 				["SumNUp","LAST"],
 				["TotBiomN","LAST"],
-				["Denit","LAST"],
-				["AtmCO2","LAST"]
+				["SoilpH","LAST"],
+				["N2Odenit","SUM"],
+				["Runoff", "SUM"]
 			]
 		]
 	},
