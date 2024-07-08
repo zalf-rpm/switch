@@ -42,12 +42,13 @@
 				["CM-count", "FIRST"],
 				["Year", "LAST"],
 				["Crop", "FIRST"],
+				["N2O","SUM"],
+				["NH3","SUM"],
 				["Yield", "LAST"],
 				["SumNUp","LAST"],
 				["TotBiomN","LAST"],
-				["SoilpH","LAST"],
-				["N2Odenit","SUM"],
-				["Runoff", "SUM"]
+				["NLeach","SUM"],
+				["Ra","SUM"]
 			]
 		]
 	},
