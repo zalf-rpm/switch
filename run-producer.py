@@ -109,7 +109,7 @@ TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/row-{crow
 # Additional data for masking the regions  ###NUTS_RG_03M_25832.shp
 NUTS3_REGIONS = "data/germany/area.shp"
 
-TEMPLATE_PATH_HARVEST = "{path_to_data_dir}/projects/monica-germany/ILR_SEED_HARVEST_doys_{crop_id}.csv"
+# TEMPLATE_PATH_HARVEST = "{path_to_data_dir}/projects/monica-germany/ILR_SEED_HARVEST_doys_{crop_id}.csv"
 
 gdf = gpd.read_file(NUTS3_REGIONS)
 
@@ -182,8 +182,8 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     utm32_crs = CRS.from_epsg(25832)
     # transformers[wgs84] = Transformer.from_crs(wgs84_crs, gk5_crs, always_xy=True)
 
-    ilr_seed_harvest_data = defaultdict(
-        lambda: {"interpolate": None, "data": defaultdict(dict), "is-winter-crop": None})
+    # ilr_seed_harvest_data = defaultdict(
+    #     lambda: {"interpolate": None, "data": defaultdict(dict), "is-winter-crop": None})
 
     # Load grids
     ## note numpy is able to load from a compressed file, ending with .gz or .bz2
@@ -505,7 +505,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
                 worksteps = env_template["cropRotation"][0]["worksteps"]
                 sowing_ws = next(filter(lambda ws: ws["type"][-6:] == "Sowing", worksteps))
-                harvest_ws = next(filter(lambda ws: ws["type"][-7:] == "Harvest", worksteps))
+                # harvest_ws = next(filter(lambda ws: ws["type"][-7:] == "Harvest", worksteps))
 
                 #ilr_interpolate = ilr_seed_harvest_data[crop_id_short]["interpolate"]
                 #seed_harvest_cs = ilr_interpolate(sr, sh) if ilr_interpolate else None
@@ -825,14 +825,14 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                     "nodata": False
                 }
 
-                print("Harvest type:", setup["harvest-date"])
-                print("Srow: ", env_template["customId"]["srow"], "Scol:", env_template["customId"]["scol"])
-                harvest_ws = next(
-                    filter(lambda ws: ws["type"][-7:] == "Harvest", env_template["cropRotation"][0]["worksteps"]))
-                if setup["harvest-date"] == "fixed":
-                    print("Harvest-date:", harvest_ws["date"])
-                elif setup["harvest-date"] == "auto":
-                    print("Harvest-date:", harvest_ws["latest-date"])
+                # print("Harvest type:", setup["harvest-date"])
+                # print("Srow: ", env_template["customId"]["srow"], "Scol:", env_template["customId"]["scol"])
+                # harvest_ws = next(
+                #     filter(lambda ws: ws["type"][-7:] == "Harvest", env_template["cropRotation"][0]["worksteps"]))
+                # if setup["harvest-date"] == "fixed":
+                #     print("Harvest-date:", harvest_ws["date"])
+                # elif setup["harvest-date"] == "auto":
+                #     print("Harvest-date:", harvest_ws["latest-date"])
 
                 if not DEBUG_DONOT_SEND:
                     socket.send_json(env_template)
