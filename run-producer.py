@@ -330,18 +330,18 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
             soil_grid[soil_grid_copy == -9999] = -9999
 
         # add crop id from setup file
-        try:
-            # read seed/harvest dates for each crop_id
-            path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
-                                                        crop_id=crop_id_short)
-            print("created seed harvest gk5 interpolator and read data: ", path_harvest)
-            Mrunlib.create_seed_harvest_geoGrid_interpolator_and_read_data(path_harvest, wgs84_crs, utm32_crs,
-                                                                           ilr_seed_harvest_data)
-        except IOError:
-            path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
-                                                        crop_id=crop_id_short)
-            print("Couldn't read file:", path_harvest)
-            continue
+        #try:
+        #    # read seed/harvest dates for each crop_id
+        #    path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
+        #                                                crop_id=crop_id_short)
+        #    print("created seed harvest gk5 interpolator and read data: ", path_harvest)
+        #    Mrunlib.create_seed_harvest_geoGrid_interpolator_and_read_data(path_harvest, wgs84_crs, utm32_crs,
+        #                                                                   ilr_seed_harvest_data)
+        #except IOError:
+        #    path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
+        #                                                crop_id=crop_id_short)
+        #    print("Couldn't read file:", path_harvest)
+        #    continue
 
         cdict = {}
         # path to latlon-to-rowcol.json
@@ -507,11 +507,11 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 sowing_ws = next(filter(lambda ws: ws["type"][-6:] == "Sowing", worksteps))
                 harvest_ws = next(filter(lambda ws: ws["type"][-7:] == "Harvest", worksteps))
 
-                ilr_interpolate = ilr_seed_harvest_data[crop_id_short]["interpolate"]
-                seed_harvest_cs = ilr_interpolate(sr, sh) if ilr_interpolate else None
+                #ilr_interpolate = ilr_seed_harvest_data[crop_id_short]["interpolate"]
+                #seed_harvest_cs = ilr_interpolate(sr, sh) if ilr_interpolate else None
 
                 # set external seed/harvest dates
-                if seed_harvest_cs:
+                if False: #seed_harvest_cs:
                     seed_harvest_data = ilr_seed_harvest_data[crop_id_short]["data"][seed_harvest_cs]
                     if seed_harvest_data:
                         is_winter_crop = ilr_seed_harvest_data[crop_id_short]["is-winter-crop"]
