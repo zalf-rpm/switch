@@ -6,7 +6,7 @@
 
 	"climate.csv-options": {
 		"_start-date": "1991-01-01",
-        "_end-date": "2017-12-31",
+        "_end-date": "2022-09-30",
 		"no-of-climate-file-header-lines": 1,
         "csv-separator": "\t",
         "header-to-acd-names": {
@@ -38,19 +38,27 @@
 		"obj-outputs?": true,
 
 		"events": [
-			"xxxx-06-14", [
+			"xxxx-06-10", [
 				"CM-count",
 				"Crop",
 				"Year",
-				"Yield|Yield_06-14",
-				"AbBiom|AbBiom_06-14"
+				"Yield|Yield_06-10",
+				"AbBiom|AbBiom_06-10"
 			],
-			"xxxx-09-14", [
+			"xxxx-08-05", [
 				"CM-count",
 				"Crop",
 				"Year",
-				"Yield|Yield_09-14",
-				"AbBiom|AbBiom_09-14"
+				"Yield|Yield_08-05",
+				"AbBiom|AbBiom_08-05"
+			]
+			,
+			"xxxx-09-29", [
+				"CM-count",
+				"Crop",
+				"Year",
+				"Yield|Yield_09-29",
+				"AbBiom|AbBiom_09-29"
 			]
 		]
 	},
