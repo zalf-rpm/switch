@@ -88,10 +88,12 @@ def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, pat
     make_dict_nparr = lambda: defaultdict(lambda: np.full((ncols,), -9999, dtype=np.float))
 
     output_grids = {
-        "Yield_06-14": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "AbBiom_06-14": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "Yield_09-14": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "AbBiom_09-14": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        "Yield_06-10": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        "AbBiom_06-10": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        "Yield_08-05": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        "AbBiom_08-05": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        "Yield_09-29": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        "AbBiom_09-29": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
     }
     output_keys = list(output_grids.keys())
 
