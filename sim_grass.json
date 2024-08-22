@@ -40,23 +40,23 @@
 		"events": [
 			"xxxx-06-10", [
 				"CM-count",
-				"Crop",
-				"Year",
+				["Crop", "FIRST"],
+				["Yield", "LAST"],
 				"Yield|Yield_06-10",
 				"AbBiom|AbBiom_06-10"
 			],
 			"xxxx-08-05", [
 				"CM-count",
-				"Crop",
-				"Year",
+				["Crop", "FIRST"],
+				["Yield", "LAST"],
 				"Yield|Yield_08-05",
 				"AbBiom|AbBiom_08-05"
 			]
 			,
 			"xxxx-09-29", [
 				"CM-count",
-				"Crop",
-				"Year",
+				["Crop", "FIRST"],
+				["Yield", "LAST"],
 				"Yield|Yield_09-29",
 				"AbBiom|AbBiom_09-29"
 			]
