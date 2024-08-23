@@ -50,8 +50,8 @@ PATHS = {
         "path-to-csv-output-dir": "/out/csv-out/"
     }
 }
-TEMPLATE_SOIL_PATH = "{local_path_to_data_dir}germany/buek200_1000_25832_etrs89-utm32n.asc"
-TEMPLATE_LANDUSE_PATH = "{local_path_to_data_dir}germany/landuse_1000_31469_gk5.asc"
+TEMPLATE_SOIL_PATH = "{local_path_to_data_dir}germany/buek200_100_25832_etrs89-utm32n.asc"
+# TEMPLATE_LANDUSE_PATH = "{local_path_to_data_dir}germany/landuse_1000_31469_gk5.asc"
 # DATA_SOIL_DB = "germany/buek200.sqlite"
 USE_LANDUSE = False
 
@@ -246,33 +246,33 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
     yllcorner = int(soil_metadata["yllcorner"])
     nodata_value = int(soil_metadata["nodata_value"])
 
-    if USE_LANDUSE:
-        path_to_landuse_grid = TEMPLATE_LANDUSE_PATH.format(local_path_to_data_dir=paths["path-to-data-dir"])
-        landuse_epsg_code = int(path_to_landuse_grid.split("/")[-1].split("_")[2])
-        landuse_crs = CRS.from_epsg(landuse_epsg_code)
-        landuse_transformer = Transformer.from_crs(soil_crs, landuse_crs)
-        landuse_meta, _ = Mrunlib.read_header(path_to_landuse_grid)
-        landuse_grid = np.loadtxt(path_to_landuse_grid, dtype=int, skiprows=6)
-        landuse_interpolate = Mrunlib.create_ascii_grid_interpolator(landuse_grid, landuse_meta)
+    # if USE_LANDUSE:
+    #     path_to_landuse_grid = TEMPLATE_LANDUSE_PATH.format(local_path_to_data_dir=paths["path-to-data-dir"])
+    #     landuse_epsg_code = int(path_to_landuse_grid.split("/")[-1].split("_")[2])
+    #     landuse_crs = CRS.from_epsg(landuse_epsg_code)
+    #     landuse_transformer = Transformer.from_crs(soil_crs, landuse_crs)
+    #     landuse_meta, _ = Mrunlib.read_header(path_to_landuse_grid)
+    #     landuse_grid = np.loadtxt(path_to_landuse_grid, dtype=int, skiprows=6)
+    #     landuse_interpolate = Mrunlib.create_ascii_grid_interpolator(landuse_grid, landuse_meta)
 
-        for srow in range(0, srows):
-            # print(srow)
-            for scol in range(0, scols):
-                soil_id = soil_grid_template[srow, scol]
-                if soil_id == -9999:
-                    continue
+    #     for srow in range(0, srows):
+    #         # print(srow)
+    #         for scol in range(0, scols):
+    #             soil_id = soil_grid_template[srow, scol]
+    #             if soil_id == -9999:
+    #                 continue
 
-                # get coordinate of clostest climate element of real soil-cell
-                sh = yllcorner + (scellsize / 2) + (srows - srow - 1) * scellsize
-                sr = xllcorner + (scellsize / 2) + scol * scellsize
+    #             # get coordinate of clostest climate element of real soil-cell
+    #             sh = yllcorner + (scellsize / 2) + (srows - srow - 1) * scellsize
+    #             sr = xllcorner + (scellsize / 2) + scol * scellsize
 
-                # check if current grid cell is used for agriculture                
-                lur, luh = landuse_transformer(sh, sr)
-                landuse_id = landuse_interpolate(lur, luh)
-                if landuse_id not in [2, 3, 4]:
-                    soil_grid_template[srow, scol] = -9999
+    #             # check if current grid cell is used for agriculture                
+    #             lur, luh = landuse_transformer(sh, sr)
+    #             landuse_id = landuse_interpolate(lur, luh)
+    #             if landuse_id not in [2, 3, 4]:
+    #                 soil_grid_template[srow, scol] = -9999
 
-        print("filtered through CORINE")
+    #     print("filtered through CORINE")
 
     # set all data values to one, to count them later
     soil_grid_template[soil_grid_template != nodata_value] = 1
