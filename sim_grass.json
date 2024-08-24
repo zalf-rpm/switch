@@ -41,23 +41,20 @@
 			"xxxx-06-10", [
 				"CM-count",
 				"Crop",
-				"Yield",
-				"Yield|Yield_06-10",
+				["Yield|Yield_06-10", "LAST"],
 				"AbBiom|AbBiom_06-10"
 			],
 			"xxxx-08-05", [
 				"CM-count",
 				"Crop",
-				"Yield",
-				"Yield|Yield_08-05",
+				["Yield|Yield_08-05", "LAST"],
 				"AbBiom|AbBiom_08-05"
 			]
 			,
 			"xxxx-09-29", [
 				"CM-count",
 				"Crop",
-				"Yield",
-				"Yield|Yield_09-29",
+				["Yield|Yield_09-29", "LAST"],
 				"AbBiom|AbBiom_09-29"
 			]
 		]
