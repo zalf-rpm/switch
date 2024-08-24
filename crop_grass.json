@@ -111,7 +111,6 @@
             ]
         }
     ],
-    "cropRotation": ["ref", "cropRotationTemplates", "RYE"],
     "CropParameters": {
         "=": ["include-from-file", "general/crop.json"]
     }
