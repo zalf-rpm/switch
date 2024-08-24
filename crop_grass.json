@@ -10,7 +10,7 @@
             "residueParams": ["include-from-file", "crops/residues/grass-ley.json"]
         }
     },
-    "cropRotation": [
+    "cropRotationTemplates": [
         {
             "worksteps": [
                 {
@@ -111,6 +111,7 @@
             ]
         }
     ],
+    "cropRotation": ["ref", "cropRotationTemplates", "RYE"],
     "CropParameters": {
         "=": ["include-from-file", "general/crop.json"]
     }
