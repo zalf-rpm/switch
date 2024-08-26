@@ -67,6 +67,8 @@
 		},
 		"RYE": {
             "is-winter-crop": false,
+			"is-perennial-crop": true,
+			"cuttingDates":["0000-06-10","0000-08-05","0000-09-29"],
             "cropParams": {
                 "species": ["include-from-file", "crops/species/Grass_Species4.json"],
                 "cultivar": ["include-from-file", "crops/cultivars/Grass_CLV4.json"]

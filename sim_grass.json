@@ -48,7 +48,7 @@
 			"xxxx-08-05", [
 				"CM-count",
 				"Crop",
-				"Month",
+				"Year",
 				["Yield|Yield_08-05","LAST"],
 				"AbBiom|AbBiom_08-05"
 			]
@@ -56,7 +56,7 @@
 			"xxxx-09-29", [
 				"CM-count",
 				"Crop",
-				"Month",
+				"Year",
 				["Yield|Yield_09-29","LAST"],
 				"AbBiom|AbBiom_09-29"
 			]
