@@ -393,7 +393,7 @@
                 },
 				{
                     "latest-date": "0000-06-10",
-                    "type": "AutomaticHarvest",
+                    "type": "Cutting",
                     "organs": {
                         "Leaf": [
                             0.15,
