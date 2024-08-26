@@ -89,8 +89,8 @@ def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, pat
 
     output_grids = {
         "CutBiomass_06-10": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "CutBiomass_06-10": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "CutBiomass_06-10": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        "CutBiomass_08-05": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        "CutBiomass_09-29": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
     }
 
 
