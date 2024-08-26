@@ -392,8 +392,8 @@
                     "crop": ["ref", "crops", "RYE"]
                 },
 				{
-                    "date": "AutomaticHarvest",
-                    "type": "Cutting",
+                    "date": "0000-06-10",
+                    "type": "AutomaticHarvest",
                     "organs": {
                         "Leaf": [
                             0.15,
