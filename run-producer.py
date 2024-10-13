@@ -89,9 +89,9 @@ PATHS = {
 }
 
 DATA_SOIL_DB = "germany/buek200.sqlite"
-DATA_GRID_HEIGHT = "germany/dem_1000_25832_etrs89-utm32n.asc"
-DATA_GRID_SLOPE = "germany/slope_1000_25832_etrs89-utm32n.asc"
-DATA_GRID_SOIL = "germany/buek200_1000_25832_etrs89-utm32n.asc"
+DATA_GRID_HEIGHT = "germany/dem_100_25832_etrs89-utm32n.asc"
+DATA_GRID_SLOPE = "germany/slope_100_25832_etrs89-utm32n.asc"
+DATA_GRID_SOIL = "germany/buek200_100_25832_etrs89-utm32n.asc"
 # DATA_GRID_CROPS = "germany/BRA2017-crop-maize_100_25832_etrs89-utm32n.asc"#####+ "crop_data"
 
 # DATA_GRID_LAND_USE = "germany/landuse_1000_31469_gk5.asc"
