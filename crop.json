@@ -9,6 +9,14 @@
 			},
 			"residueParams": ["include-from-file", "crops/residues/wheat.json"]
 		},
+		"WT_dwd": {
+			"is-winter-crop": true,
+			"cropParams": {
+				"species": ["include-from-file", "crops/species/triticale.json"],
+				"cultivar": ["include-from-file", "crops/cultivars/winter-triticale.json"]
+			},
+			"residueParams": ["include-from-file", "crops/residues/triticale.json"]
+		},
 		"WB_dwd": {
 			"is-winter-crop": true,
 			"cropParams": {
@@ -127,6 +135,38 @@
 					"amount": [15000, "kg N"],
 					"parameters": ["include-from-file", "organic-fertilisers/CAM.json"],
 					"incorporation": true
+				}
+			]
+		}],
+		"WT_sfix_hauto": [{
+			"worksteps": [
+				{
+					"date": "0000-09-22", "type": "Sowing", "crop": ["ref", "crops", "WT_dwd"] 
+				},
+				{
+					"type": "NDemandFertilization",
+					"days": 55,
+					"after": "Sowing",
+					"N-demand": [50.0, "kg"],
+					"depth": [0.9, "m"],
+					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
+				  },
+				  {
+					"type": "NDemandFertilization",
+					"days": 150,
+					"after": "Sowing",
+					"N-demand": [90.0, "kg"],
+					"depth": [0.9, "m"],
+					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
+				  },
+				{ 
+					"type": "AutomaticHarvest", 
+					"latest-date": "0001-09-05",
+					"min-%-asw": 0,
+					"max-%-asw": 99.0,
+					"max-3d-precip-sum": 2,
+					"max-curr-day-precip": 0.1,
+					"harvest-time": "maturity"
 				}
 			]
 		}],
