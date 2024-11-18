@@ -42,13 +42,7 @@
 				["CM-count", "FIRST"],
 				["Year", "LAST"],
 				["Crop", "FIRST"],
-				["N2O","SUM"],
-				["NH3","SUM"],
-				["Yield", "LAST"],
-				["SumNUp","LAST"],
-				["TotBiomN","LAST"],
-				["NLeach","SUM"],
-				["Ra","SUM"]
+				["Yield", "LAST"]
 			]
 		]
 	},
