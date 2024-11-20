@@ -108,8 +108,8 @@ TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/row-{crow
 # TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
 
 # Additional data for masking the regions  ###NUTS_RG_03M_25832.shp
-NUTS3_REGIONS = "data/germany/area.shp"
-####"data/germany/BRA_BER_25832_merge.shp"
+# NUTS3_REGIONS = "data/germany/area.shp"
+NUTS3_REGIONS = "data/germany/BRA_BER_25832_merge.shp"
 
 # TEMPLATE_PATH_HARVEST = "{path_to_data_dir}/projects/monica-germany/ILR_SEED_HARVEST_doys_{crop_id}.csv"
 
