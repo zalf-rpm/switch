@@ -15,7 +15,7 @@
 			"TempMean": "tavg",
 			"TempMax": "tmax",
             "Precipitation": "precip",
-            "RelHumCalc": ["relhumid", "*", 100.0],
+            "RelHumCalc": "relhumid",
 			"Radiation": ["globrad", "/", 1000.0],
 			"Windspeed": "wind"
         }
