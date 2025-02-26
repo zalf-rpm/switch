@@ -17,7 +17,6 @@
 
 from collections import defaultdict
 import copy
-import csv
 from datetime import date, timedelta
 import json
 import math
@@ -25,23 +24,23 @@ import numpy as np
 import os
 from pyproj import CRS, Transformer
 import sqlite3
-import sqlite3 as cas_sq3
 import sys
 import time
 import zmq
 import geopandas as gpd
+import pandas as pd
 import rasterio
-from rasterio.transform import from_origin
 from rasterio import features
 
 import monica_io3
-import soil_io3
+import fr_soil_io3
 import monica_run_lib as Mrunlib
+
 # from irrigation_manager import IrrigationManager
 
 PATHS = {
     # adjust the local path to your environment
-    "cj-local-remote": {
+    "re-local-remote": {
         # "include-file-base-path": "/home/berg/GitHub/monica-parameters/", # path to monica-parameters
         "path-to-climate-dir": "D:/projects/KlimErtrag/",  # local path
         "monica-path-to-climate-dir": "/monica_data/climate-data/",
@@ -88,19 +87,16 @@ PATHS = {
     }
 }
 
-DATA_SOIL_DB = "france/montpellier_soil_profile_100.sqlite"
+DATA_SOIL_DB = "france/montpellier_soil_profile_100_v2.sqlite"
 DATA_GRID_HEIGHT = "france/montpellier_100_2154_DEM.asc"
 DATA_GRID_SLOPE = "france/montpellier_100_2154_slope.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
-
-
 
 TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/latlon-to-rowcol.json"
 # TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/row-{crow}/col-{ccol}.csv"
 TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
 
 # Additional data for masking the regions  ###NUTS_RG_03M_25832.shp
-# NUTS3_REGIONS = "data/germany/area.shp"
 NUTS3_REGIONS = "data/france/area.shp"
 
 # TEMPLATE_PATH_HARVEST = "{path_to_data_dir}/projects/monica-germany/ILR_SEED_HARVEST_doys_{crop_id}.csv"
@@ -114,24 +110,66 @@ DEBUG_WRITE_FOLDER = "./debug_out"
 DEBUG_WRITE_CLIMATE = False
 
 
+def read_climate_data(file_path):
+    try:
+        df = pd.read_csv(file_path, engine='python')
+        return df
+    except Exception as e:
+        print("Error reading climate data file: ", file_path, e)
+        return None
+
+
+def haversine_distance(coord1, coord2):
+    R = 6371.0
+
+    lat1, lon1 = map(math.radians, coord1)
+    lat2, lon2 = map(math.radians, coord2)
+
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    return R * c  # distance in km
+
+
+def get_nearest_climate_id(df, grid_lats, grid_lons):
+    unique_lats_lons = df[['LAT', 'LON']].drop_duplicates().values  # Unique station coordinates
+    nearest_points = []
+
+    for lat, lon in zip(grid_lats, grid_lons):
+        min_dist = float("inf")
+        nearest_lat, nearest_lon = None, None
+
+        for station_lat, station_lon in unique_lats_lons:
+            dist = haversine_distance((lat, lon), (station_lat, station_lon))
+            if dist < min_dist:
+                min_dist = dist
+                nearest_lat, nearest_lon = station_lat, station_lon
+
+        nearest_points.append((nearest_lat, nearest_lon))
+
+    return nearest_points
+
+
 ## Add an argument in the run_producer function and make a loop with changing of the value of the additional parameter (sensitivity analysis)
 ## Make a list of the parameter values first
 
 # commandline parameters e.g "server=localhost port=6666 shared_id=2"
 def run_producer(server={"server": None, "port": None}, shared_id=None):
-    
     context = zmq.Context()
     socket = context.socket(zmq.PUSH)  # pylint: disable=no-member
     # config_and_no_data_socket = context.socket(zmq.PUSH)
 
     config = {
-        "mode": "mbm-local-remote",
-        "server-port": server["port"] if server["port"] else "6666",
+        "mode": "re-local-remote",
+        "server-port": server["port"] if server["port"] else "6667",
         "server": server["server"] if server["server"] else "login01.cluster.zalf.de",
         "start-row": "0",
         "end-row": "-1",
         "path_to_dem_grid": "",
-        "sim.json": "sim.json",
+        "sim.json": "sim_fr.json",
         "crop.json": "crop_final.json",
         "site.json": "site.json",
         "setups-file": "sim_setups_france_LF.csv",
@@ -148,7 +186,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
     print("config:", config)
 
-    # select paths 
+    # select paths
     paths = PATHS[config["mode"]]
     # open soil db connection
     soil_db_con = sqlite3.connect(paths["path-to-data-dir"] + DATA_SOIL_DB)
@@ -163,7 +201,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     for rsr in rs_ranges:
         rs_r = rsr.split("-")
         if 1 < len(rs_r) <= 2:
-            run_setups.extend(range(int(rs_r[0]), int(rs_r[1])+1))
+            run_setups.extend(range(int(rs_r[0]), int(rs_r[1]) + 1))
         elif len(rs_r) == 1:
             run_setups.append(int(rs_r[0]))
     # run_setups = json.loads(config["run-setups"])
@@ -173,7 +211,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # transform wgs84 into gk5
     soil_crs_to_x_transformers = {}
     wgs84_crs = CRS.from_epsg(4326)
-    utm32_crs = CRS.from_epsg(25832)
+    utm32_crs = CRS.from_epsg(2154)
     # transformers[wgs84] = Transformer.from_crs(wgs84_crs, gk5_crs, always_xy=True)
 
     # ilr_seed_harvest_data = defaultdict(
@@ -183,7 +221,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     ## note numpy is able to load from a compressed file, ending with .gz or .bz2
 
     # soil data
-    
+
     path_to_soil_grid = paths["path-to-data-dir"] + DATA_GRID_SOIL
     soil_epsg_code = int(path_to_soil_grid.split("/")[-1].split("_")[2])
     soil_crs = CRS.from_epsg(soil_epsg_code)
@@ -234,10 +272,10 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         start_setup_time = time.perf_counter()
 
         setup = setups[setup_id]
-        crop_data=setup["crop_data"]
+        crop_data = setup["crop_data"]
 
-    DATA_GRID_CROPS = str("germany/raster/"+crop_data)
-    path_to_crop_grid = paths["path-to-data-dir"]+DATA_GRID_CROPS  
+    DATA_GRID_CROPS = str("france/raster/" + crop_data)
+    path_to_crop_grid = paths["path-to-data-dir"] + DATA_GRID_CROPS
     crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
     crop_crs = CRS.from_epsg(crop_epsg_code)
     if crop_crs not in soil_crs_to_x_transformers:
@@ -265,7 +303,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
     def create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid):
         regions_df = gpd.read_file(NUTS3_REGIONS)
-        region = regions_df[regions_df["Name"] == region_name]
+        region = regions_df[regions_df["id"] == int(region_name)]
 
         # This is needed to read the transformation data correctly from the file. With the original opening it does not work
         with rasterio.open(path_to_soil_grid) as dataset:
@@ -298,7 +336,6 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         version = setup["version"]
         crop_id = setup["crop-id"]
         region_name = setup["region_name"]
-    
 
         ## extract crop_id from crop-id name that has possible an extenstion
         crop_id_short = crop_id.split('_')[0]
@@ -324,14 +361,14 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
             soil_grid[soil_grid_copy == -9999] = -9999
 
         # add crop id from setup file
-        #try:
+        # try:
         #    # read seed/harvest dates for each crop_id
         #    path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
         #                                                crop_id=crop_id_short)
         #    print("created seed harvest gk5 interpolator and read data: ", path_harvest)
         #    Mrunlib.create_seed_harvest_geoGrid_interpolator_and_read_data(path_harvest, wgs84_crs, utm32_crs,
         #                                                                   ilr_seed_harvest_data)
-        #except IOError:
+        # except IOError:
         #    path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
         #                                                crop_id=crop_id_short)
         #    print("Couldn't read file:", path_harvest)
@@ -340,13 +377,20 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         cdict = {}
         # path to latlon-to-rowcol.json
         # path = TEMPLATE_PATH_LATLON.format(path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
-        path = TEMPLATE_PATH_LATLON.format(
-            path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
-        climate_data_interpolator = Mrunlib.create_climate_geoGrid_interpolator_from_json_file(path, wgs84_crs,
-                                                                                               soil_crs, cdict)
-        print("created climate_data to gk5 interpolator: ", path)
+        # path = TEMPLATE_PATH_LATLON.format(
+        #     path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
+        # climate_data_interpolator = Mrunlib.create_climate_geoGrid_interpolator_from_json_file(path, wgs84_crs,
+        #                                                                                        soil_crs, cdict)
+        # print("created climate_data to gk5 interpolator: ", path)
 
-        # read template sim.json 
+        climate_file_path = "data/france/climate_montpellier_interp.csv"
+        climate_data = read_climate_data(climate_file_path)
+
+        if climate_data is None:
+            print("Error reading climate data file: ", climate_file_path)
+            return
+
+        # read template sim.json
         with open(setup.get("sim.json", config["sim.json"])) as _:
             sim_json = json.load(_)
         # change start and end date according to setup
@@ -403,11 +447,14 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         orig_params = None
         if setup["species_param_name"]:
             if not orig_params:
-                orig_params = copy.deepcopy(env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["species"])
+                orig_params = copy.deepcopy(
+                    env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["species"])
         elif setup["cultivar_param_name"]:
             if not orig_params:
-                orig_params = copy.deepcopy(env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"])
+                orig_params = copy.deepcopy(
+                    env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"])
 
+        grid_lats, grid_lons = [], []
         for srow in range(0, srows):
             print(srow, end=", ")
 
@@ -421,11 +468,31 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 if soil_id == nodata_value:
                     continue
 
-                # get coordinate of clostest climate element of real soil-cell
+                # get coordinate of closest climate element of real soil-cell
                 sh = yllcorner + (scellsize / 2) + (srows - srow - 1) * scellsize
                 sr = xllcorner + (scellsize / 2) + scol * scellsize
                 # inter = crow/ccol encoded into integer
-                crow, ccol = climate_data_interpolator(sr, sh)
+                # crow, ccol = climate_data_interpolator(sr, sh)
+
+                slat, slon = soil_crs_to_x_transformers[wgs84_crs].transform(sr, sh)
+                grid_lats.append(slat)
+                grid_lons.append(slon)
+
+                # Find the nearest climate station
+                nearest_points = get_nearest_climate_id(climate_data, grid_lats, grid_lons)
+
+                # for i, (lat, lon) in enumerate(zip(grid_lats, grid_lons)):
+                for i, (lat, lon) in enumerate(zip(grid_lats, grid_lons)):
+                    closest_lat, closest_lon = nearest_points[i]
+                    station_data = climate_data[(climate_data["LAT"] == closest_lat) &
+                                                (climate_data["LON"] == closest_lon)]
+
+                    # Extract the station ID
+                    station_id = station_data["ID"].iloc[0]
+
+                    climate_file_path = f"{paths['monica-path-to-climate-dir']}montpellier/{station_id}.csv"
+
+                    env_template["pathToClimateCSV"] = [climate_file_path]
 
                 # OW: clim4cast sensitivity analysis
                 p_value = p_name = params = None
@@ -465,7 +532,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                     env_template["customId"] = {
                         "setup_id": setup_id,
                         "srow": srow, "scol": scol,
-                        "crow": int(crow), "ccol": int(ccol),
+                        # "crow": int(crow), "ccol": int(ccol),
                         "soil_id": soil_id,
                         "env_id": sent_env_count,
                         "nodata": True,
@@ -494,18 +561,18 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 if soil_id in soil_id_cache:
                     soil_profile = soil_id_cache[soil_id]
                 else:
-                    soil_profile = soil_io3.soil_parameters(soil_db_con, soil_id)
+                    soil_profile = fr_soil_io3.soil_parameters(soil_db_con, soil_id)
                     soil_id_cache[soil_id] = soil_profile
 
                 worksteps = env_template["cropRotation"][0]["worksteps"]
                 sowing_ws = next(filter(lambda ws: ws["type"][-6:] == "Sowing", worksteps))
                 # harvest_ws = next(filter(lambda ws: ws["type"][-7:] == "Harvest", worksteps))
 
-                #ilr_interpolate = ilr_seed_harvest_data[crop_id_short]["interpolate"]
-                #seed_harvest_cs = ilr_interpolate(sr, sh) if ilr_interpolate else None
+                # ilr_interpolate = ilr_seed_harvest_data[crop_id_short]["interpolate"]
+                # seed_harvest_cs = ilr_interpolate(sr, sh) if ilr_interpolate else None
 
                 # set external seed/harvest dates
-                if False: #seed_harvest_cs:
+                if False:  # seed_harvest_cs:
                     seed_harvest_data = ilr_seed_harvest_data[crop_id_short]["data"][seed_harvest_cs]
                     if seed_harvest_data:
                         is_winter_crop = ilr_seed_harvest_data[crop_id_short]["is-winter-crop"]
@@ -629,7 +696,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                     env_template["customId"] = {
                         "setup_id": setup_id,
                         "srow": srow, "scol": scol,
-                        "crow": int(crow), "ccol": int(ccol),
+                        # "crow": int(crow), "ccol": int(ccol),
                         "soil_id": soil_id,
                         "env_id": sent_env_count,
                         "nodata": True,
@@ -641,7 +708,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                         sent_env_count += 1
                     continue
 
-                # check if current grid cell is used for agriculture                
+                # check if current grid cell is used for agriculture
                 # if setup["landcover"]:
                 #     if landuse_crs not in tcoords:
                 #         tcoords[landuse_crs] = soil_crs_to_x_transformers[landuse_crs].transform(sr, sh)
@@ -706,11 +773,12 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                     env_template["params"]["siteParameters"]["heightNN"] = float(height_nn)
 
                 if setup["slope"]:
-                    env_template["params"]["siteParameters"]["slope"] = slope / 100.0
+                    env_template["params"]["siteParameters"]["slope"] = slope / 100
 
                 if setup["latitude"]:
-                    clat, _ = cdict[(crow, ccol)]
-                    env_template["params"]["siteParameters"]["Latitude"] = clat
+                    # clat, _ = cdict[(crow, ccol)]
+                    # env_template["params"]["siteParameters"]["Latitude"] = clat
+                    env_template["params"]["siteParameters"]["Latitude"] = slat
 
                 if setup["CO2"]:
                     env_template["params"]["userEnvironmentParameters"]["AtmosphericCO2"] = float(setup["CO2"])
@@ -799,18 +867,20 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 #         hist_subpath_to_csv = hist_subpath_to_csv.replace("//", "/")
                 #     env_template["pathToClimateCSV"].insert(0, paths["monica-path-to-climate-dir"] + setup[
                 #         "climate_path_to_csvs"] + "/" + hist_subpath_to_csv)
-                env_template["pathToClimateCSV"] = \
-                    paths["monica-path-to-climate-dir"] + \
-                    f"dwd/csvs/germany_ubn_1951-01-01_to_2024-08-30/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
+                # env_template["pathToClimateCSV"] = \
+                #     paths["monica-path-to-climate-dir"] + \
+                #     f"dwd/csvs/germany_ubn_1951-01-01_to_2024-08-30/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
+                # env_template["pathToClimateCSV"] = climate_file_path
+                # env_template["pathToClimateCSV"] = [paths["monica-path-to-climate-dir"] + "montpellier/climate_montpellier_interp_v4.csv"]
                 print("pathToClimateCSV:", env_template["pathToClimateCSV"])
 
-                #if DEBUG_WRITE_CLIMATE:
+                # if DEBUG_WRITE_CLIMATE:
                 #    listOfClimateFiles.add(subpath_to_csv)
 
                 env_template["customId"] = {
                     "setup_id": setup_id,
                     "srow": srow, "scol": scol,
-                    "crow": int(crow), "ccol": int(ccol),
+                    # "crow": int(crow), "ccol": int(ccol),
                     "soil_id": soil_id,
                     "env_id": sent_env_count,
                     "is_sensitivity_analysis": is_sensitivity_analysis,

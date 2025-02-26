@@ -15,29 +15,22 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 import csv
-from datetime import datetime
-import gc
-import json
 import numpy as np
 import os
-from pyproj import CRS, Transformer
-import sqlite3
+from pyproj import CRS
 import sys
-import timeit
-import types
 import zmq
 
 import monica_io3
-import soil_io3
 import monica_run_lib as Mrunlib
 
 PATHS = {
-    "cj-local-remote": {
+    "re-local-remote": {
         "path-to-data-dir": "data/",
-        "path-to-output-dir": "D:/projects/KlimErtrag/out_remote_local/",
-        "path-to-csv-output-dir": "D:/projects/KlimErtrag/out_remote_local/"
+        "path-to-output-dir": "D:/monica_switch/out/out",
+        "path-to-csv-output-dir": "D:/monica_switch/out/csv-out"
     },
     "mbm-local-remote": {
         "path-to-data-dir": "data/",
@@ -197,8 +190,8 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
     """collect data from workers"""
 
     config = {
-        "mode": "mbm-local-remote",
-        "port": server["port"] if server["port"] else "7777",
+        "mode": "re-local-remote",
+        "port": server["port"] if server["port"] else "7778",
         "server": server["server"] if server["server"] else "login01.cluster.zalf.de",
         "start-row": "0",
         "end-row": "-1",
@@ -266,7 +259,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
     #             sh = yllcorner + (scellsize / 2) + (srows - srow - 1) * scellsize
     #             sr = xllcorner + (scellsize / 2) + scol * scellsize
 
-    #             # check if current grid cell is used for agriculture                
+    #             # check if current grid cell is used for agriculture
     #             lur, luh = landuse_transformer(sh, sr)
     #             landuse_id = landuse_interpolate(lur, luh)
     #             if landuse_id not in [2, 3, 4]:
@@ -496,7 +489,13 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                                                                        include_time_agg=False):
                             writer.writerow(row)
 
-                        for row in monica_io3.write_output(output_ids, results):
+                        # for row in monica_io3.write_output(output_ids, results):
+                        #     writer.writerow(row)
+                        for result in results:
+                            row = []
+                            for output_id in output_ids:
+                                field_name = output_id["name"]
+                                row.append(result.get(field_name, ""))
                             writer.writerow(row)
 
                     writer.writerow([])
