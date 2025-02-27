@@ -31,6 +31,7 @@ import geopandas as gpd
 import pandas as pd
 import rasterio
 from rasterio import features
+import subprocess
 
 import monica_io3
 import fr_soil_io3
@@ -957,4 +958,5 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
 
 if __name__ == "__main__":
+    subprocess.run(["git", "lfs", "pull"], check=True)
     run_producer()
