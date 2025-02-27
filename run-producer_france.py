@@ -89,6 +89,7 @@ PATHS = {
 }
 
 DATA_SOIL_DB = "france/montpellier_soil_profile_100_v2.sqlite"
+SOIL_DB_URL = "https://github.com/zalf-rpm/switch/raw/refs/heads/main/data/france/montpellier_soil_profile_100_v2.sqlite"
 DATA_GRID_HEIGHT = "france/montpellier_100_2154_DEM.asc"
 DATA_GRID_SLOPE = "france/montpellier_100_2154_slope.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
@@ -189,8 +190,15 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
     # select paths
     paths = PATHS[config["mode"]]
+
+    soil_db_path = paths["path-to-data-dir"] + DATA_SOIL_DB
+    subprocess.run(["wget", "-O", soil_db_path, SOIL_DB_URL], check=True)
+    print("Downloaded soil db successfully.")
+
     # open soil db connection
-    soil_db_con = sqlite3.connect(paths["path-to-data-dir"] + DATA_SOIL_DB)
+    # soil_db_con = sqlite3.connect(paths["path-to-data-dir"] + DATA_SOIL_DB)
+    soil_db_con = sqlite3.connect(soil_db_path)
+    print("Connected to soil db successfully.")
     # soil_db_con = cas_sq3.connect(paths["path-to-data-dir"] + DATA_SOIL_DB) #CAS.
     # connect to monica proxy (if local, it will try to connect to a locally started monica)
     socket.connect("tcp://" + config["server"] + ":" + str(config["server-port"]))
@@ -958,5 +966,5 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
 
 if __name__ == "__main__":
-    subprocess.run(["git", "lfs", "pull"], check=True)
+    # subprocess.run(["git", "lfs", "pull"], check=True)
     run_producer()
