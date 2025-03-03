@@ -79,12 +79,7 @@ def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, pat
     make_dict_nparr = lambda: defaultdict(lambda: np.full((ncols,), -9999, dtype=np.float))
 
     output_grids = {
-        "SumNUp": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "TotBiomN": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "NLeach": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "Ra": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "N2O": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "NH3": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1}
+        "Yield": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
     }
     output_keys = list(output_grids.keys())
 
