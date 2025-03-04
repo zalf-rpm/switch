@@ -392,7 +392,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         #                                                                                        soil_crs, cdict)
         # print("created climate_data to gk5 interpolator: ", path)
 
-        climate_file_path = "data/france/climate_montpellier_interp_2007-2022_stations.csv"
+        climate_file_path = "data/france/latlon-to-id.csv"
         climate_data = read_climate_data(climate_file_path)
 
         if climate_data is None:
