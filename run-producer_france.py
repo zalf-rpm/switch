@@ -94,9 +94,9 @@ DATA_GRID_HEIGHT = "france/montpellier_100_2154_DEM.asc"
 DATA_GRID_SLOPE = "france/montpellier_100_2154_slope.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
 
-TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/latlon-to-rowcol.json"
+# TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/latlon-to-rowcol.json"
 # TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/row-{crow}/col-{ccol}.csv"
-TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
+# TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
 
 # Additional data for masking the regions  ###NUTS_RG_03M_25832.shp
 NUTS3_REGIONS = "data/france/area.shp"
@@ -110,15 +110,6 @@ DEBUG_WRITE = False
 DEBUG_ROWS = 10
 DEBUG_WRITE_FOLDER = "./debug_out"
 DEBUG_WRITE_CLIMATE = False
-
-
-def read_climate_data(file_path):
-    try:
-        df = pd.read_csv(file_path, engine='python')
-        return df
-    except Exception as e:
-        print("Error reading climate data file: ", file_path, e)
-        return None
 
 
 def get_nearest_climate_id(df, grid_lats, grid_lons):
@@ -209,7 +200,6 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     ## note numpy is able to load from a compressed file, ending with .gz or .bz2
 
     # soil data
-
     path_to_soil_grid = paths["path-to-data-dir"] + DATA_GRID_SOIL
     soil_epsg_code = int(path_to_soil_grid.split("/")[-1].split("_")[2])
     soil_crs = CRS.from_epsg(soil_epsg_code)
@@ -288,7 +278,6 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # irrigation_manager = IrrigationManager("irrigated_crops.json")
 
     # Create the function for the mask. This function will later use the additional column in a setup file!
-
     def create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid):
         regions_df = gpd.read_file(NUTS3_REGIONS)
         region = regions_df[regions_df["id"] == int(region_name)]
@@ -372,9 +361,9 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         # print("created climate_data to gk5 interpolator: ", path)
 
         climate_file_path = "data/france/latlon-to-id.csv"
-        climate_data = read_climate_data(climate_file_path)
+        climate_data_df = pd.read_csv(climate_file_path)
 
-        if climate_data is None:
+        if climate_data_df is None:
             print("Error reading climate data file: ", climate_file_path)
             return
 
@@ -467,13 +456,12 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 grid_lons.append(slon)
 
                 # Find the nearest climate station
-                nearest_points = get_nearest_climate_id(climate_data, grid_lats, grid_lons)
+                nearest_points = get_nearest_climate_id(climate_data_df, grid_lats, grid_lons)
 
-                # for i, (lat, lon) in enumerate(zip(grid_lats, grid_lons)):
                 for i, (lat, lon) in enumerate(zip(grid_lats, grid_lons)):
                     closest_lat, closest_lon = nearest_points[i]
-                    station_data = climate_data[(climate_data["LAT"] == closest_lat) &
-                                                (climate_data["LON"] == closest_lon)]
+                    station_data = climate_data_df[(climate_data_df["LAT"] == closest_lat) &
+                                                (climate_data_df["LON"] == closest_lon)]
 
                     # Extract the station ID
                     station_id = station_data["ID"].iloc[0]
@@ -945,5 +933,4 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
 
 if __name__ == "__main__":
-    # subprocess.run(["git", "lfs", "pull"], check=True)
     run_producer()
