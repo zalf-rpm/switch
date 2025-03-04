@@ -32,11 +32,11 @@ import pandas as pd
 import rasterio
 from rasterio import features
 import subprocess
+from scipy.spatial import KDTree
 
 import monica_io3
 import fr_soil_io3
 import monica_run_lib as Mrunlib
-
 # from irrigation_manager import IrrigationManager
 
 PATHS = {
@@ -121,35 +121,14 @@ def read_climate_data(file_path):
         return None
 
 
-def haversine_distance(coord1, coord2):
-    R = 6371.0
-
-    lat1, lon1 = map(math.radians, coord1)
-    lat2, lon2 = map(math.radians, coord2)
-
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-
-    a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-    return R * c  # distance in km
-
-
 def get_nearest_climate_id(df, grid_lats, grid_lons):
     unique_lats_lons = df[['LAT', 'LON']].drop_duplicates().values  # Unique station coordinates
+    tree = KDTree(unique_lats_lons)
+
     nearest_points = []
-
     for lat, lon in zip(grid_lats, grid_lons):
-        min_dist = float("inf")
-        nearest_lat, nearest_lon = None, None
-
-        for station_lat, station_lon in unique_lats_lons:
-            dist = haversine_distance((lat, lon), (station_lat, station_lon))
-            if dist < min_dist:
-                min_dist = dist
-                nearest_lat, nearest_lon = station_lat, station_lon
-
+        dist, idx = tree.query([lat, lon])
+        nearest_lat, nearest_lon = unique_lats_lons[idx]
         nearest_points.append((nearest_lat, nearest_lon))
 
     return nearest_points
