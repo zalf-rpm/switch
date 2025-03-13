@@ -90,7 +90,7 @@ PATHS = {
 DATA_SOIL_DB = "france/montpellier_soil_profile_100_v3.sqlite"
 SOIL_DB_URL = "https://github.com/zalf-rpm/switch/raw/refs/heads/main/data/france/montpellier_soil_profile_100_v3.sqlite"
 DATA_GRID_HEIGHT = "france/montpellier_100_2154_DEM.asc"
-DATA_GRID_SLOPE = "france/montpellier_100_2154_slope.asc"
+DATA_GRID_SLOPE = "france/montpellier_100_2154_slope_percent.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
 
 # Additional data for masking the regions
