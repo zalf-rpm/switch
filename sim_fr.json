@@ -15,7 +15,7 @@
 			"TEMPERATURE_AVG": "tavg",
 			"TEMPERATURE_MAX": "tmax",
             "PRECIPITATION": "precip",
-			"RADIATION": ["globrad", "/", 1000.0],
+			"RADIATION": ["globrad", "/", 100.0],
 			"WINDSPEED": "wind"
         }
     },
