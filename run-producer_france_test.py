@@ -87,8 +87,8 @@ PATHS = {
     }
 }
 
-DATA_SOIL_DB = "france/montpellier_soil_profile_100_v3.sqlite"
-SOIL_DB_URL = "https://github.com/zalf-rpm/switch/raw/refs/heads/main/data/france/montpellier_soil_profile_100_v3.sqlite"
+DATA_SOIL_DB = "france/montpellier_soil_profile_100_v5.sqlite"
+SOIL_DB_URL = "https://github.com/zalf-rpm/switch/raw/refs/heads/main/data/france/montpellier_soil_profile_100_v5.sqlite"
 DATA_GRID_HEIGHT = "france/montpellier_100_2154_DEM.asc"
 DATA_GRID_SLOPE = "france/montpellier_100_2154_slope_percent.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
@@ -269,8 +269,8 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # Create the function for the mask. This function will later use the additional column in a setup file!
     def create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid):
         regions_df = gpd.read_file(NUTS3_REGIONS)
-        # region = regions_df[regions_df["id"] == int(region_name)]
-        region = regions_df[regions_df["id_name"] == region_name]
+        region = regions_df[regions_df["id"] == int(region_name)]
+        # region = regions_df[regions_df["id_name"] == region_name]
 
         # This is needed to read the transformation data correctly from the file. With the original opening it does not work
         with rasterio.open(path_to_soil_grid) as dataset:
