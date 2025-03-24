@@ -266,6 +266,16 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # initialize irrigation manager
     # irrigation_manager = IrrigationManager("irrigated_crops.json")
 
+    # Region ID just for this part of France.
+    # id : name
+    # 1:  Aude
+    # 2 : Tarn
+    # 3: Averyron
+    # 4: Lozere
+    # 5: Gard
+    # 6: Herault
+    #
+
     # Create the function for the mask. This function will later use the additional column in a setup file!
     def create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid):
         regions_df = gpd.read_file(NUTS3_REGIONS)
