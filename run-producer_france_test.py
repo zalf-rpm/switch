@@ -94,7 +94,8 @@ DATA_GRID_SLOPE = "france/montpellier_100_2154_slope_percent.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
 
 # Additional data for masking the regions
-NUTS3_REGIONS = "data/france/montpellier_dept.shp"
+NUTS3_REGIONS = "data/france/area_around_montpellier.shp"
+# NUTS3_REGIONS = "data/france/montpellier_dept.shp"
 # NUTS3_REGIONS = "data/france/area.shp"
 
 
