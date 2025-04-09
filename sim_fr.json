@@ -10,7 +10,7 @@
 		"no-of-climate-file-header-lines": 1,
         "csv-separator": ",",
         "header-to-acd-names": {
-			"DAY": ["pattern-date", "YYYYMMDD"],
+			"DAY": "iso-date",
 			"TEMPERATURE_MIN": "tmin",
 			"TEMPERATURE_AVG": "tavg",
 			"TEMPERATURE_MAX": "tmax",
