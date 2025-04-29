@@ -363,7 +363,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         #                                                                                        soil_crs, cdict)
         # print("created climate_data to gk5 interpolator: ", path)
 
-        climate_file_path = "data/france/latlon-to-id.csv"
+        climate_file_path = "data/france/latlon-to-id_2005_2022.csv"
         climate_data_df = pd.read_csv(climate_file_path)
 
         if climate_data_df is None:
@@ -507,7 +507,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
                 station_id = station_data["ID"].iloc[0]
 
-                climate_file_path = f"{paths['monica-path-to-climate-dir']}montpellier/{station_id}.csv"
+                climate_file_path = f"{paths['monica-path-to-climate-dir']}montpellier/version2/{station_id}.csv"
                 env_template["pathToClimateCSV"] = [climate_file_path]
 
                 # OW: clim4cast sensitivity analysis
