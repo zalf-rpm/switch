@@ -198,7 +198,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     if wgs84_crs not in soil_crs_to_x_transformers:
         soil_crs_to_x_transformers[wgs84_crs] = Transformer.from_crs(soil_crs, wgs84_crs)
     soil_metadata, _ = Mrunlib.read_header(path_to_soil_grid)
-    soil_grid_original = np.loadtxt(path_to_soil_grid, dtype=int, skiprows=6)
+    soil_grid = np.loadtxt(path_to_soil_grid, dtype=int, skiprows=6)
     print("read: ", path_to_soil_grid)
 
     # height data for germany
@@ -236,24 +236,24 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
     # crop mask data
     # DATA_GRID_CROPS="germany/"
-    # for _, setup_id in enumerate(run_setups):
-    #     if setup_id not in setups:
-    #         continue
-    #     start_setup_time = time.perf_counter()
+    for _, setup_id in enumerate(run_setups):
+        if setup_id not in setups:
+            continue
+        start_setup_time = time.perf_counter()
 
-    #     setup = setups[setup_id]
-    #     crop_data=setup["crop_data"]
+        setup = setups[setup_id]
+        crop_data=setup["crop_data"]
 
-    # DATA_GRID_CROPS = str("germany/raster/"+crop_data)
-    # path_to_crop_grid = paths["path-to-data-dir"]+DATA_GRID_CROPS  
-    # crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
-    # crop_crs = CRS.from_epsg(crop_epsg_code)
-    # if crop_crs not in soil_crs_to_x_transformers:
-    #     soil_crs_to_x_transformers[crop_crs] = Transformer.from_crs(soil_crs, crop_crs)
-    # crop_meta, _ = Mrunlib.read_header(path_to_crop_grid)
-    # crop_grid = np.loadtxt(path_to_crop_grid, dtype=int, skiprows=6)
-    # crop_interpolate = Mrunlib.create_ascii_grid_interpolator(crop_grid, crop_meta)
-    # print("read: ", path_to_crop_grid)
+    DATA_GRID_CROPS = str("germany/raster/"+crop_data)
+    path_to_crop_grid = paths["path-to-data-dir"]+DATA_GRID_CROPS  
+    crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
+    crop_crs = CRS.from_epsg(crop_epsg_code)
+    if crop_crs not in soil_crs_to_x_transformers:
+        soil_crs_to_x_transformers[crop_crs] = Transformer.from_crs(soil_crs, crop_crs)
+    crop_meta, _ = Mrunlib.read_header(path_to_crop_grid)
+    crop_grid = np.loadtxt(path_to_crop_grid, dtype=int, skiprows=6)
+    crop_interpolate = Mrunlib.create_ascii_grid_interpolator(crop_grid, crop_meta)
+    print("read: ", path_to_crop_grid)
 
     # irrigation data
     # path_to_irrigation_grid = paths["path-to-data-dir"] + DATA_GRID_IRRIGATION
@@ -293,7 +293,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
     # run calculations for each setup
     for _, setup_id in enumerate(run_setups):
-        soil_grid = soil_grid_original.copy()
+
         if setup_id not in setups:
             continue
         start_setup_time = time.perf_counter()
@@ -310,19 +310,6 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
         ## extract crop_id from crop-id name that has possible an extenstion
         crop_id_short = crop_id.split('_')[0]
-        
-        # Load the crop grid per setup
-        crop_data = setup["crop_data"]
-        DATA_GRID_CROPS = str("germany/raster/"+crop_data)
-        path_to_crop_grid = paths["path-to-data-dir"]+DATA_GRID_CROPS  
-        crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
-        crop_crs = CRS.from_epsg(crop_epsg_code)
-        if crop_crs not in soil_crs_to_x_transformers:
-            soil_crs_to_x_transformers[crop_crs] = Transformer.from_crs(soil_crs, crop_crs)
-        crop_meta, _ = Mrunlib.read_header(path_to_crop_grid)
-        crop_grid = np.loadtxt(path_to_crop_grid, dtype=int, skiprows=6)
-        crop_interpolate = Mrunlib.create_ascii_grid_interpolator(crop_grid, crop_meta)
-        print("read: ", path_to_crop_grid)
 
         # path_to_crop_grid ="data/germany/"+crop_data #paths["path-to-data-dir"+]+DATA_GRID_CROPS
         # crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
@@ -759,7 +746,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 env_template["params"]["simulationParameters"]["UseNMinMineralFertilisingMethod"] = setup[
                     "fertilization"]
 
-                # env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = setup["irrigation"]
+                env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = setup["irrigation"]
 
                 # set UseAutomaticIrrigation to True if irrigation setup is True and irrigation is 1
                 # if setup["irrigation"] and irrigation == 1:
