@@ -92,10 +92,10 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         "start-row": "0",
         "end-row": "-1",
         "path_to_dem_grid": "",
-        "sim.json": "sim_final.json",
-        "crop.json": "crop_final.json",
+        "sim.json": "sim.json",
+        "crop.json": "crop.json",
         "site.json": "site.json",
-        "setups-file": "sim_setups_LF.csv",
+        "setups-file": "sim_setups_BRA_LF.csv",
         "run-setups": "[1]",
         "shared_id": shared_id
     }
@@ -574,7 +574,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
                 env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
 
-
+                ##### climate data
                 env_template["pathToClimateCSV"] = \
                     paths["monica-path-to-climate-dir"] + \
                     f"dwd/csvs/germany_ubn_1951-01-01_to_2024-08-30/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
