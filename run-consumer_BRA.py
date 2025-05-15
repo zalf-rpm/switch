@@ -34,11 +34,6 @@ import soil_io3
 import monica_run_lib as Mrunlib
 
 PATHS = {
-    "cj-local-remote": {
-        "path-to-data-dir": "data/",
-        "path-to-output-dir": "D:/projects/KlimErtrag/out_remote_local/",
-        "path-to-csv-output-dir": "D:/projects/KlimErtrag/out_remote_local/"
-    },
     "mbm-local-remote": {
         "path-to-data-dir": "data/",
         "path-to-output-dir": "out/",
@@ -88,12 +83,12 @@ def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, pat
     make_dict_nparr = lambda: defaultdict(lambda: np.full((ncols,), -9999, dtype=np.float))
 
     output_grids = {
-        "SumNUp": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "TotBiomN": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "NLeach": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "Ra": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "N2O": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "NH3": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1}
+        "Yield": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        # "TotBiomN": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        # "NLeach": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        # "Ra": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        # "N2O": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+        # "NH3": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1}
     }
     output_keys = list(output_grids.keys())
 
@@ -248,33 +243,6 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
     yllcorner = int(soil_metadata["yllcorner"])
     nodata_value = int(soil_metadata["nodata_value"])
 
-    # if USE_LANDUSE:
-    #     path_to_landuse_grid = TEMPLATE_LANDUSE_PATH.format(local_path_to_data_dir=paths["path-to-data-dir"])
-    #     landuse_epsg_code = int(path_to_landuse_grid.split("/")[-1].split("_")[2])
-    #     landuse_crs = CRS.from_epsg(landuse_epsg_code)
-    #     landuse_transformer = Transformer.from_crs(soil_crs, landuse_crs)
-    #     landuse_meta, _ = Mrunlib.read_header(path_to_landuse_grid)
-    #     landuse_grid = np.loadtxt(path_to_landuse_grid, dtype=int, skiprows=6)
-    #     landuse_interpolate = Mrunlib.create_ascii_grid_interpolator(landuse_grid, landuse_meta)
-
-    #     for srow in range(0, srows):
-    #         # print(srow)
-    #         for scol in range(0, scols):
-    #             soil_id = soil_grid_template[srow, scol]
-    #             if soil_id == -9999:
-    #                 continue
-
-    #             # get coordinate of clostest climate element of real soil-cell
-    #             sh = yllcorner + (scellsize / 2) + (srows - srow - 1) * scellsize
-    #             sr = xllcorner + (scellsize / 2) + scol * scellsize
-
-    #             # check if current grid cell is used for agriculture                
-    #             lur, luh = landuse_transformer(sh, sr)
-    #             landuse_id = landuse_interpolate(lur, luh)
-    #             if landuse_id not in [2, 3, 4]:
-    #                 soil_grid_template[srow, scol] = -9999
-
-    #     print("filtered through CORINE")
 
     # set all data values to one, to count them later
     soil_grid_template[soil_grid_template != nodata_value] = 1
