@@ -48,6 +48,14 @@ PATHS = {
         # mounted path to archive accessable by monica executable
         "path-to-data-dir": "./data/",  # mounted path to archive or hard drive with data
         "path-debug-write-folder": "./debug-out/",
+    },
+        "remoteProducer-remoteMonica": {
+        # "include-file-base-path": "/monica-parameters/", # path to monica-parameters
+        "path-to-climate-dir": "/data/",  # mounted path to archive or hard drive with climate data
+        "monica-path-to-climate-dir": "/monica_data/climate-data/",
+        # mounted path to archive accessable by monica executable
+        "path-to-data-dir": "./data/",  # mounted path to archive or hard drive with data
+        "path-debug-write-folder": "/out/debug-out/",
     }
 }
 
