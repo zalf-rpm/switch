@@ -72,7 +72,9 @@ TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/{crow}/da
 # Data for masking the regions 
 # REGIONS = "data/germany/shapefiles/BRA_BER_25832_merge.shp"
 REGIONS = "data/germany/shapefiles/test_area.shp"
-# TEMPLATE_PATH_HARVEST = "{path_to_data_dir}/projects/monica-germany/ILR_SEED_HARVEST_doys_{crop_id}.csv"
+### in this code the column of the shapefile is called "region_name" and not "region_id"
+### it should be call be the name of the sub-area, not the id of the region
+
 
 gdf = gpd.read_file(REGIONS)
 
