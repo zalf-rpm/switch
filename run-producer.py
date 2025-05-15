@@ -92,15 +92,6 @@ DATA_SOIL_DB = "germany/buek200.sqlite"
 DATA_GRID_HEIGHT = "germany/dem_100_25832_etrs89-utm32n.asc"
 DATA_GRID_SLOPE = "germany/slope_100_25832_etrs89-utm32n.asc"
 DATA_GRID_SOIL = "germany/buek200_100_25832_etrs89-utm32n.asc"
-# DATA_GRID_CROPS = "germany/BRA2017-crop-maize_100_25832_etrs89-utm32n.asc"#####+ "crop_data"
-
-# DATA_GRID_LAND_USE = "germany/landuse_1000_31469_gk5.asc"
-# DATA_GRID_SOIL_OW = "germany/buek200_1000_25832_etrs89-utm32n_OW.asc"
-# ORIGINAL DATA_GRID_SOIL = "germany/buek200_1000_25832_etrs89-utm32n.asc"
-# DATA_GRID_CROPS = "germany/crops-all2017-2019_1000_25832_etrs89-utm32n.asc"
-# DATA_GRID_CROPS = "germany/dwd-stations-pheno_1000_25832_etrs89-utm32n.asc"
-# DATA_GRID_CROPS = "germany/germany-complete_1000_25832_etrs89-utm32n.asc"
-# DATA_GRID_IRRIGATION = "germany/irrigation_1000_25832_etrs89-utm32n_wc_18.asc"
 
 
 TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/latlon-to-rowcol.json"
@@ -198,7 +189,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     if wgs84_crs not in soil_crs_to_x_transformers:
         soil_crs_to_x_transformers[wgs84_crs] = Transformer.from_crs(soil_crs, wgs84_crs)
     soil_metadata, _ = Mrunlib.read_header(path_to_soil_grid)
-    soil_grid = np.loadtxt(path_to_soil_grid, dtype=int, skiprows=6)
+    soil_grid_original = np.loadtxt(path_to_soil_grid, dtype=int, skiprows=6)
     print("read: ", path_to_soil_grid)
 
     # height data for germany
@@ -223,37 +214,6 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     slope_interpolate = Mrunlib.create_ascii_grid_interpolator(slope_grid, slope_metadata)
     print("read: ", path_to_slope_grid)
 
-    # # land use data
-    # path_to_landuse_grid = paths["path-to-data-dir"] + DATA_GRID_LAND_USE
-    # landuse_epsg_code = int(path_to_landuse_grid.split("/")[-1].split("_")[2])
-    # landuse_crs = CRS.from_epsg(landuse_epsg_code)
-    # if landuse_crs not in soil_crs_to_x_transformers:
-    #     soil_crs_to_x_transformers[landuse_crs] = Transformer.from_crs(soil_crs, landuse_crs)
-    # landuse_meta, _ = Mrunlib.read_header(path_to_landuse_grid)
-    # landuse_grid = np.loadtxt(path_to_landuse_grid, dtype=int, skiprows=6)
-    # landuse_interpolate = Mrunlib.create_ascii_grid_interpolator(landuse_grid, landuse_meta)
-    # print("read: ", path_to_landuse_grid)
-
-    # crop mask data
-    # DATA_GRID_CROPS="germany/"
-    for _, setup_id in enumerate(run_setups):
-        if setup_id not in setups:
-            continue
-        start_setup_time = time.perf_counter()
-
-        setup = setups[setup_id]
-        crop_data=setup["crop_data"]
-
-    DATA_GRID_CROPS = str("germany/raster/"+crop_data)
-    path_to_crop_grid = paths["path-to-data-dir"]+DATA_GRID_CROPS  
-    crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
-    crop_crs = CRS.from_epsg(crop_epsg_code)
-    if crop_crs not in soil_crs_to_x_transformers:
-        soil_crs_to_x_transformers[crop_crs] = Transformer.from_crs(soil_crs, crop_crs)
-    crop_meta, _ = Mrunlib.read_header(path_to_crop_grid)
-    crop_grid = np.loadtxt(path_to_crop_grid, dtype=int, skiprows=6)
-    crop_interpolate = Mrunlib.create_ascii_grid_interpolator(crop_grid, crop_meta)
-    print("read: ", path_to_crop_grid)
 
     # irrigation data
     # path_to_irrigation_grid = paths["path-to-data-dir"] + DATA_GRID_IRRIGATION
@@ -293,6 +253,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
     # run calculations for each setup
     for _, setup_id in enumerate(run_setups):
+        soil_grid = soil_grid_original.copy()
 
         if setup_id not in setups:
             continue
@@ -310,21 +271,23 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
         ## extract crop_id from crop-id name that has possible an extenstion
         crop_id_short = crop_id.split('_')[0]
+        crop_data=setup["crop_data"]
 
-        # path_to_crop_grid ="data/germany/"+crop_data #paths["path-to-data-dir"+]+DATA_GRID_CROPS
-        # crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
-        # crop_crs = CRS.from_epsg(crop_epsg_code)
-        # if crop_crs not in soil_crs_to_x_transformers:
-        #     soil_crs_to_x_transformers[crop_crs] = Transformer.from_crs(soil_crs, crop_crs)
-        # crop_meta, _ = Mrunlib.read_header(path_to_crop_grid)
-        # crop_grid = np.loadtxt(path_to_crop_grid, dtype=int, skiprows=6)
-        # crop_interpolate = Mrunlib.create_ascii_grid_interpolator(crop_grid, crop_meta)
-        # print("read: ", path_to_crop_grid)
+        DATA_GRID_CROPS = str("germany/raster/"+crop_data)
+        path_to_crop_grid = paths["path-to-data-dir"]+DATA_GRID_CROPS  
+        crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
+        crop_crs = CRS.from_epsg(crop_epsg_code)
+        if crop_crs not in soil_crs_to_x_transformers:
+            soil_crs_to_x_transformers[crop_crs] = Transformer.from_crs(soil_crs, crop_crs)
+        crop_meta, _ = Mrunlib.read_header(path_to_crop_grid)
+        crop_grid = np.loadtxt(path_to_crop_grid, dtype=int, skiprows=6)
+        crop_interpolate = Mrunlib.create_ascii_grid_interpolator(crop_grid, crop_meta)
+        print("read: ", path_to_crop_grid)
+
 
         if region_name and len(region_name) > 0:
             # Create the soil mask for the specific region
-            path_to_soil_grid_ow = paths["path-to-data-dir"] + DATA_GRID_SOIL
-            mask = create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid_ow)
+            mask = create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid)
 
             # Apply the soil mask to the soil grid
             soil_grid_copy = soil_grid.copy()
