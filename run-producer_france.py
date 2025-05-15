@@ -19,7 +19,6 @@ from collections import defaultdict
 import copy
 from datetime import date, timedelta
 import json
-import math
 import numpy as np
 import os
 from pyproj import CRS, Transformer
@@ -94,14 +93,11 @@ DATA_GRID_HEIGHT = "france/montpellier_100_2154_DEM.asc"
 DATA_GRID_SLOPE = "france/montpellier_100_2154_slope_percent.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
 
-# TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/latlon-to-rowcol.json"
-# TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/row-{crow}/col-{ccol}.csv"
-# TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
+# Additional data for masking the regions
+NUTS3_REGIONS = "data/france/area_around_montpellier.shp"
+# NUTS3_REGIONS = "data/france/montpellier_dept.shp"
+# NUTS3_REGIONS = "data/france/area.shp"
 
-# Additional data for masking the regions  ###NUTS_RG_03M_25832.shp
-NUTS3_REGIONS = "data/france/montpellier_dept.shp"
-
-# TEMPLATE_PATH_HARVEST = "{path_to_data_dir}/projects/monica-germany/ILR_SEED_HARVEST_doys_{crop_id}.csv"
 
 gdf = gpd.read_file(NUTS3_REGIONS)
 
@@ -116,14 +112,10 @@ def get_nearest_climate_id(df, grid_lats, grid_lons):
     unique_lats_lons = df[['LAT', 'LON']].drop_duplicates().values  # Unique station coordinates
     tree = KDTree(unique_lats_lons)
 
-    nearest_points = []
-    for lat, lon in zip(grid_lats, grid_lons):
-        dist, idx = tree.query([lat, lon])
-        nearest_lat, nearest_lon = unique_lats_lons[idx]
-        nearest_points.append((nearest_lat, nearest_lon))
+    distances, indices = tree.query(np.column_stack((grid_lats, grid_lons)))
+    nearest_points = unique_lats_lons[indices]
 
     return nearest_points
-
 
 ## Add an argument in the run_producer function and make a loop with changing of the value of the additional parameter (sensitivity analysis)
 ## Make a list of the parameter values first
@@ -277,10 +269,21 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # initialize irrigation manager
     # irrigation_manager = IrrigationManager("irrigated_crops.json")
 
+    # Region ID just for this part of France.
+    # id : name
+    # 1:  Aude
+    # 2 : Tarn
+    # 3: Averyron
+    # 4: Lozere
+    # 5: Gard
+    # 6: Herault
+    #
+
     # Create the function for the mask. This function will later use the additional column in a setup file!
     def create_mask_from_shapefile(NUTS3_REGIONS, region_name, path_to_soil_grid):
         regions_df = gpd.read_file(NUTS3_REGIONS)
         region = regions_df[regions_df["id"] == int(region_name)]
+        # region = regions_df[regions_df["id_name"] == region_name]
 
         # This is needed to read the transformation data correctly from the file. With the original opening it does not work
         with rasterio.open(path_to_soil_grid) as dataset:
@@ -360,7 +363,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         #                                                                                        soil_crs, cdict)
         # print("created climate_data to gk5 interpolator: ", path)
 
-        climate_file_path = "data/france/latlon-to-id.csv"
+        climate_file_path = "data/france/latlon-to-id_2005_2022.csv"
         climate_data_df = pd.read_csv(climate_file_path)
 
         if climate_data_df is None:
@@ -431,7 +434,25 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 orig_params = copy.deepcopy(
                     env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"])
 
-        grid_lats, grid_lons = [], []
+        # Create coordinate grid once
+        grid_x = xllcorner + (scellsize / 2) + np.arange(scols) * scellsize
+        grid_y = yllcorner + (scellsize / 2) + (srows - np.arange(srows) - 1) * scellsize
+
+        # Generate all possible (x, y) coordinates
+        grid_xx, grid_yy = np.meshgrid(grid_x, grid_y)
+
+        # Flatten for batch processing
+        flat_x = grid_xx.ravel()
+        flat_y = grid_yy.ravel()
+
+        # Transform all coordinates at once
+        transformer = soil_crs_to_x_transformers[wgs84_crs]
+        flat_lats, flat_lons = transformer.transform(flat_x, flat_y)
+
+        # Reshape back to grid format
+        grid_lats = flat_lats.reshape((srows, scols))
+        grid_lons = flat_lons.reshape((srows, scols))
+
         for srow in range(0, srows):
             print(srow, end=", ")
 
@@ -451,24 +472,43 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 # inter = crow/ccol encoded into integer
                 # crow, ccol = climate_data_interpolator(sr, sh)
 
-                slat, slon = soil_crs_to_x_transformers[wgs84_crs].transform(sr, sh)
-                grid_lats.append(slat)
-                grid_lons.append(slon)
+                # slat, slon = soil_crs_to_x_transformers[wgs84_crs].transform(sr, sh)
+                # grid_lats.append(slat)
+                # grid_lons.append(slon)
+
+                slat = grid_lats[srow, scol]
+                slon = grid_lons[srow, scol]
 
                 # Find the nearest climate station
-                nearest_points = get_nearest_climate_id(climate_data_df, grid_lats, grid_lons)
+                # nearest_points = get_nearest_climate_id(climate_data_df, grid_lats, grid_lons)
 
-                for i, (lat, lon) in enumerate(zip(grid_lats, grid_lons)):
-                    closest_lat, closest_lon = nearest_points[i]
-                    station_data = climate_data_df[(climate_data_df["LAT"] == closest_lat) &
-                                                (climate_data_df["LON"] == closest_lon)]
+                closest_lat, closest_lon = get_nearest_climate_id(climate_data_df, [slat], [slon])[0]
 
-                    # Extract the station ID
-                    station_id = station_data["ID"].iloc[0]
+                # for i, (lat, lon) in enumerate(zip(grid_lats, grid_lons)):
+                #     closest_lat, closest_lon = nearest_points[i]
+                #     station_data = climate_data_df[(climate_data_df["LAT"] == closest_lat) &
+                #                                    (climate_data_df["LON"] == closest_lon)]
+                #
+                #     # Extract the station ID
+                #     station_id = station_data["ID"].iloc[0]
+                #
+                #     climate_file_path = f"{paths['monica-path-to-climate-dir']}montpellier/{station_id}.csv"
+                #
+                #     env_template["pathToClimateCSV"] = [climate_file_path]
 
-                    climate_file_path = f"{paths['monica-path-to-climate-dir']}montpellier/{station_id}.csv"
+                station_data = climate_data_df[
+                    (climate_data_df["LAT"] == closest_lat) &
+                    (climate_data_df["LON"] == closest_lon)
+                    ]
 
-                    env_template["pathToClimateCSV"] = [climate_file_path]
+                if station_data.empty:
+                    print(f"Warning: No station found for lat/lon ({slat}, {slon})")
+                    continue
+
+                station_id = station_data["ID"].iloc[0]
+
+                climate_file_path = f"{paths['monica-path-to-climate-dir']}montpellier/version2/{station_id}.csv"
+                env_template["pathToClimateCSV"] = [climate_file_path]
 
                 # OW: clim4cast sensitivity analysis
                 p_value = p_name = params = None
