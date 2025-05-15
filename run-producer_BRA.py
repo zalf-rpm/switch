@@ -70,8 +70,8 @@ TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/latlon-to-rowcol.json"
 TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
 
 # Data for masking the regions 
-# REGIONS = "data/germany/shapefiles/BRA_BER_25832_merge.shp"
-REGIONS = "data/germany/shapefiles/test_area.shp"
+REGIONS = "data/germany/shapefiles/BRA_BER_25832_merge.shp"
+# REGIONS = "data/germany/shapefiles/test_area.shp"
 ### in this code the column of the shapefile is called "region_name" and not "region_id"
 ### it should be call be the name of the sub-area, not the id of the region
 
