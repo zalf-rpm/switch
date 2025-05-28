@@ -478,7 +478,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
                 station_id = station_data["ID"].iloc[0]
 
-                climate_file_path = f"{paths['monica-path-to-climate-dir']}montpellier/version2/{station_id}.csv"
+                climate_file_path = f"{paths['monica-path-to-climate-dir']}montpellier/version3/{station_id}.csv"
                 env_template["pathToClimateCSV"] = [climate_file_path]
 
                 # OW: clim4cast sensitivity analysis
