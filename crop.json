@@ -69,7 +69,7 @@
 			"is-winter-crop": true,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/maize.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/grain-maize_bs.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/silage-maize_bs_dwd_pheno.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/maize.json"]
 		},
