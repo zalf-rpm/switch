@@ -67,7 +67,7 @@ def create_output(msg):
     cmcs = list(cm_count_to_vals.keys())
     cmcs.sort()
     last_cmc = cmcs[-1]
-    if "year" not in cm_count_to_vals[last_cmc]:
+    if "Year" not in cm_count_to_vals[last_cmc]:
         cm_count_to_vals.pop(last_cmc)
 
     return cm_count_to_vals
@@ -159,7 +159,8 @@ def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, pat
         for (cm_count, year), row_arr in y2d.items():
             crop = cmc_to_crop[cm_count] if cm_count in cmc_to_crop else "none"
             crop = crop.replace("/", "").replace(" ", "")
-            path_to_file = path_to_output_dir + crop + "_" + key + "_" + str(year) + "_" + str(cm_count) + ".asc"
+            key2 = key.replace("/", "_")
+            path_to_file = path_to_output_dir + crop + "_" + key2 + "_" + str(year) + "_" + str(cm_count) + ".asc"
 
             if not os.path.isfile(path_to_file):
                 with open(path_to_file, "w") as _:
