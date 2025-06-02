@@ -69,9 +69,18 @@
 			"is-winter-crop": true,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/maize.json"],
+				"cultivar": ["include-from-file", "crops/cultivars/silage-maize_bs_dwd_pheno.json"]
+			},
+			"residueParams": ["include-from-file", "crops/residues/maize.json"]
+		},
+		"GM_dwd": {
+			"is-winter-crop": true,
+			"cropParams": {
+				"species": ["include-from-file", "crops/species/maize.json"],
 				"cultivar": ["include-from-file", "crops/cultivars/grain-maize_bs.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/maize.json"]
+
 		},
 		"SU_dwd": {
 			"is-winter-crop": true,
@@ -426,6 +435,46 @@
 				  }
 			]
 		}],
+		"GM_sfix_hauto": [{
+			"worksteps": [
+				{
+					"date": "0000-03-31", "type": "Sowing", "crop": ["ref", "crops", "GM_dwd"]
+				},
+				{
+					"type": "NDemandFertilization",
+					"days": 1,
+					"after": "Sowing",
+					"N-demand": [110.0, "kg"],
+					"depth": [0.3, "m"],
+					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
+				},
+				{
+					"type": "NDemandFertilization",
+					"days": 30,
+					"after": "Sowing",
+					"N-demand": [105.0, "kg"],
+					"depth": [0.9, "m"],
+					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
+				},
+				{
+					"type": "AutomaticHarvest",
+					"latest-date": "0000-10-31",
+					"min-%-asw": 0,
+					"max-%-asw": 99.0,
+					"max-3d-precip-sum": 5,
+					"max-curr-day-precip": 0.5,
+					"harvest-time": "maturity"
+				},
+				{
+					"type": "OrganicFertilization",
+					"days": 1,
+					"after": "Harvest",
+					"amount": [15000, "kg"],
+					"parameters": ["include-from-file", "organic-fertilisers/CAM.json"],
+					"incorporation": true
+				  }
+			]
+		}],		
 		"SU_sfix_hauto": [{
 			"worksteps": [
 				{
