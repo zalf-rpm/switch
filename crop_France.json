@@ -10,7 +10,7 @@
 			"residueParams": ["include-from-file", "crops/residues/wheat.json"]
 		},
 		"SW_dwd": {
-			"is-winter-crop": true,
+			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/wheat.json"],
 				"cultivar": ["include-from-file", "crops/cultivars/spring-wheat.json"]
@@ -21,12 +21,12 @@
 			"is-winter-crop": true,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/triticale.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/winter-triticale.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/winter-triticale_France.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/triticale.json"]
 		},
 		"ST_dwd": {
-			"is-winter-crop": true,
+			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/triticale.json"],
 				"cultivar": ["include-from-file", "crops/cultivars/spring-triticale.json"]
@@ -50,7 +50,7 @@
 			"residueParams": ["include-from-file", "crops/residues/rye.json"]
 		},
 		"SB_dwd": {
-			"is-winter-crop": true,
+			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/barley.json"],
 				"cultivar": ["include-from-file", "crops/cultivars/spring-barley_hhf_dwd_pheno.json"]
@@ -66,7 +66,7 @@
 			"residueParams": ["include-from-file", "crops/residues/rape.json"]
 		},
 		"SM_dwd": {
-			"is-winter-crop": true,
+			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/maize.json"],
 				"cultivar": ["include-from-file", "crops/cultivars/grain-maize_bs.json"]
@@ -74,7 +74,7 @@
 			"residueParams": ["include-from-file", "crops/residues/maize.json"]
 		},
 		"SU_dwd": {
-			"is-winter-crop": true,
+			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/sugar-beet.json"],
 				"cultivar": ["include-from-file", "crops/cultivars/sugar-beet_bs_dwd_pheno.json"]
@@ -82,7 +82,7 @@
 			"residueParams": ["include-from-file", "crops/residues/beet.json"]
 		},
 		"PO": {
-			"is-winter-crop": true,
+			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/potato.json"],
 				"cultivar": ["include-from-file", "crops/cultivars/moderately-early-potato.json"]
