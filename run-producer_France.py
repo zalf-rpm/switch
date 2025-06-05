@@ -284,7 +284,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         ensmem = setup["ensmem"]
         version = setup["version"]
         crop_id = setup["crop-id"]
-        region_id = setup["region_id"]
+        region_id = setup[region_id]
 
         ## extract crop_id from crop-id name that has possible an extenstion
         crop_id_short = crop_id.split('_')[0]
