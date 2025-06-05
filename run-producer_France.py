@@ -76,8 +76,8 @@ DATA_GRID_SLOPE = "france/montpellier_100_2154_slope_percent.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
 
 # Additional data for masking the regions
-# REGIONS = "data/france/shapefiles/area_around_montpellier.shp"
-REGIONS = "data/france/shapefiles/test.shp"
+REGIONS = "data/france/shapefiles/area_around_montpellier.shp"
+# REGIONS = "data/france/shapefiles/test.shp"
 ### in this code the column of the shapefile is called "region_id" and not "region_name"
 ### it should be call be the ID not the name of the sub-area
 
@@ -252,7 +252,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # Create the function for the mask. This function will later use the additional column in a setup file!
     def create_mask_from_shapefile(REGIONS, region_id, path_to_soil_grid):
         regions_df = gpd.read_file(REGIONS)
-        region = regions_df[regions_df["id"] == int(region_id)]
+        region = regions_df[regions_df["id"] == region_id]
 
         # This is needed to read the transformation data correctly from the file. With the original opening it does not work
         with rasterio.open(path_to_soil_grid) as dataset:
