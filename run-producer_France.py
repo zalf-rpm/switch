@@ -77,7 +77,7 @@ DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
 
 # Additional data for masking the regions
 # REGIONS = "data/france/shapefiles/area_around_montpellier.shp"
-REGIONS = "data/france/shapefiles/test_region3.shp"
+REGIONS = "data/france/shapefiles/test.shp"
 ### in this code the column of the shapefile is called "region_id" and not "region_name"
 ### it should be call be the ID not the name of the sub-area
 
