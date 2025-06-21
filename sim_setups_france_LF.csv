@@ -164,5 +164,3 @@ run-id,use_vernalisation_fix,sowing-date,harvest-date,crop-id,sim.json,crop.json
 163,True,fixed,auto,PO_sfix_hauto,sim_fr.json,crop_France.json,site_France.json,False,dwd/csvs,,,,,,,2019-02-01,2019-11-01,False,False,True,True,True,False,False,True,False,True,True,False,False,,,0.71,,historic_runs,Lozere,,,,,,MO_CType3_2019_2154.asc
 164,True,fixed,auto,PO_sfix_hauto,sim_fr.json,crop_France.json,site_France.json,False,dwd/csvs,,,,,,,2020-02-01,2020-11-01,False,False,True,True,True,False,False,True,False,True,True,False,False,,,0.71,,historic_runs,Lozere,,,,,,MO_CType3_2020_2154.asc
 165,True,fixed,auto,PO_sfix_hauto,sim_fr.json,crop_France.json,site_France.json,False,dwd/csvs,,,,,,,2021-02-01,2021-11-01,False,False,True,True,True,False,False,True,False,True,True,False,False,,,0.71,,historic_runs,Lozere,,,,,,MO_CType3_2021_2154.asc
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
