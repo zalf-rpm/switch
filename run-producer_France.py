@@ -239,9 +239,9 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # irrigation_manager = IrrigationManager("irrigated_crops.json")
 
     # Region ID just for this part of France.
-    # id : name
-    # 1:  Aude
-    # 2 : Tarn
+    # id:name
+    # 1: Aude
+    # 2: Tarn
     # 3: Averyron
     # 4: Lozere
     # 5: Gard
