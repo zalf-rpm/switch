@@ -251,7 +251,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # Create the function for the mask. This function will later use the additional column in a setup file!
     def create_mask_from_shapefile(REGIONS, region_id, path_to_soil_grid):
         regions_df = gpd.read_file(REGIONS)
-        region = regions_df[regions_df["name"] == region_id]
+        region = regions_df[regions_df["id"] == int(region_id)]
 
         # This is needed to read the transformation data correctly from the file. With the original opening it does not work
         with rasterio.open(path_to_soil_grid) as dataset:
