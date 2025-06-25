@@ -67,8 +67,8 @@ DATA_GRID_HEIGHT = "france/montpellier_100_2154_DEM.asc"
 DATA_GRID_SLOPE = "france/montpellier_100_2154_slope_percent.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
 
-# TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/latlon-to-rowcol.json"
-TEMPLATE_PATH_LATLON = "data/france/latlon_to_rowcol.json"
+TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/montpellier/latlon-to-rowcol.json"
+# TEMPLATE_PATH_LATLON = "data/france/latlon_to_rowcol.json"
 TEMPLATE_PATH_CLIMATE_CSV = "montpellier/version3/{int(ccol)}.csv"
 
 # Data for masking the regions 
