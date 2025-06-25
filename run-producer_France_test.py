@@ -25,18 +25,14 @@ import sys
 import time
 import zmq
 import geopandas as gpd
-import pandas as pd
 import rasterio
 from rasterio import features
-import subprocess
-from scipy.spatial import KDTree
 
 import monica_io3
-import fr_soil_io3
+import soil_io3
 import monica_run_lib as Mrunlib
 
 PATHS = {
-    # adjust the local path to your environment
     "re-local-remote": {
         # "include-file-base-path": "/home/berg/GitHub/monica-parameters/", # path to monica-parameters
         "path-to-climate-dir": "/monica_data/climate-data/",  # local path
@@ -54,17 +50,7 @@ PATHS = {
         "path-to-data-dir": "./data/",  # mounted path to archive or hard drive with data
         "path-debug-write-folder": "./debug-out/",
     },
-    "mbm-local-local": {
-        # "include-file-base-path": "/home/berg/GitHub/monica-parameters/", # path to monica-parameters
-        "path-to-climate-dir": "/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/",
-        # mounted path to archive or hard drive with climate data
-        "monica-path-to-climate-dir": "/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/",
-        # mounted path to archive accessable by monica executable
-        "path-to-data-dir": "./data/",  # mounted path to archive or hard drive with data
-        "path-debug-write-folder": "./debug-out/",
-    },
-
-    "remoteProducer-remoteMonica": {
+        "remoteProducer-remoteMonica": {
         # "include-file-base-path": "/monica-parameters/", # path to monica-parameters
         "path-to-climate-dir": "/data/",  # mounted path to archive or hard drive with climate data
         "monica-path-to-climate-dir": "/monica_data/climate-data/",
@@ -80,7 +66,11 @@ DATA_GRID_HEIGHT = "france/montpellier_100_2154_DEM.asc"
 DATA_GRID_SLOPE = "france/montpellier_100_2154_slope_percent.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
 
-# Additional data for masking the regions
+# TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/latlon-to-rowcol.json"
+TEMPLATE_PATH_LATLON = "data/france/latlon_to_rowcol.json"
+TEMPLATE_PATH_CLIMATE_CSV = "montpellier/version3/{int(ccol)}.csv"
+
+# Data for masking the regions 
 REGIONS = "data/france/shapefiles/area_around_montpellier.shp"
 # REGIONS = "data/france/shapefiles/test.shp"
 
@@ -92,47 +82,6 @@ DEBUG_ROWS = 10
 DEBUG_WRITE_FOLDER = "./debug_out"
 DEBUG_WRITE_CLIMATE = False
 
-soil_id_cache = {}
-soil_crs_to_x_transformers = {}
-
-def get_nearest_climate_id(df, grid_lats, grid_lons):
-    unique_lats_lons = df[['LAT', 'LON']].drop_duplicates().values  # Unique station coordinates
-    tree = KDTree(unique_lats_lons)
-
-    batch_size = 10000
-    results = []
-
-    for i in range(0, len(grid_lats), batch_size):
-        batch_lats = grid_lats[i:i + batch_size]
-        batch_lons = grid_lons[i:i + batch_size]
-        _, indices = tree.query(np.column_stack((batch_lats, batch_lons)))
-        results.append(unique_lats_lons[indices])
-
-    return np.vstack(results) if len(results) > 1 else results[0]
-
-# Region ID just for this part of France.
-# id:name
-# 1: Aude
-# 2: Tarn
-# 3: Averyron
-# 4: Lozere
-# 5: Gard
-# 6: Herault
-
-def create_mask_from_shapefile(regions_file, region_id, path_to_soil_grid):
-    regions_df = gpd.read_file(regions_file)
-    region = regions_df[regions_df["id"] == int(region_id)]
-
-    with rasterio.open(path_to_soil_grid) as dataset:
-        soil_grid = dataset.read(1)
-        transform = dataset.transform
-
-    rows, cols = soil_grid.shape
-    mask = rasterio.features.geometry_mask([region.geometry.values[0]], out_shape=(rows, cols),
-                                           transform=transform, invert=True)
-
-    return mask
-
 # commandline parameters e.g "server=localhost port=6666 shared_id=2"
 def run_producer(server={"server": None, "port": None}, shared_id=None):
     context = zmq.Context()
@@ -143,14 +92,14 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         "mode": "re-local-remote",
         "server-port": server["port"] if server["port"] else "6667",
         "server": server["server"] if server["server"] else "login01.cluster.zalf.de",
-        "start-row": "0",
+        "start-row": "1744",
         "end-row": "-1",
         "path_to_dem_grid": "",
         "sim.json": "sim_fr.json",
         "crop.json": "crop_France.json",
         "site.json": "site_France.json",
         "setups-file": "sim_setups_france_LF.csv",
-        "run-setups": "[1]",
+        "run-setups": "[60]",
         "shared_id": shared_id
     }
 
@@ -163,19 +112,15 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
     print("config:", config)
 
-    # select paths
+    # select paths 
     paths = PATHS[config["mode"]]
 
     soil_db_path = paths["path-to-data-dir"] + DATA_SOIL_DB
-    subprocess.run(["wget", "-O", soil_db_path, SOIL_DB_URL], check=True)
-    print("Downloaded soil db successfully.")
+    # subprocess.run(["wget", "-O", soil_db_path, SOIL_DB_URL], check=True)
+    # print("Downloaded soil db successfully.")
 
     # open soil db connection
-    # soil_db_con = sqlite3.connect(paths["path-to-data-dir"] + DATA_SOIL_DB)
-    soil_db_con = sqlite3.connect(soil_db_path)
-    print("Connected to soil db successfully.")
-    # soil_db_con = cas_sq3.connect(paths["path-to-data-dir"] + DATA_SOIL_DB) #CAS.
-    # connect to monica proxy (if local, it will try to connect to a locally started monica)
+    soil_db_con = sqlite3.connect(paths["path-to-data-dir"] + DATA_SOIL_DB)
     socket.connect("tcp://" + config["server"] + ":" + str(config["server-port"]))
 
     # read setup from csv file
@@ -185,7 +130,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     for rsr in rs_ranges:
         rs_r = rsr.split("-")
         if 1 < len(rs_r) <= 2:
-            run_setups.extend(range(int(rs_r[0]), int(rs_r[1]) + 1))
+            run_setups.extend(range(int(rs_r[0]), int(rs_r[1])+1))
         elif len(rs_r) == 1:
             run_setups.append(int(rs_r[0]))
     # run_setups = json.loads(config["run-setups"])
@@ -195,15 +140,6 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     soil_crs_to_x_transformers = {}
     wgs84_crs = CRS.from_epsg(4326)
     utm32_crs = CRS.from_epsg(2154)
-
-    climate_file_path = "data/france/latlon-to-id_2005_2022.csv"
-    climate_data_df = pd.read_csv(climate_file_path)
-
-    if climate_data_df is None:
-        print("Error reading climate data file:", climate_file_path)
-        return
-
-    unique_climate_stations = climate_data_df[['LAT', 'LON', 'ID']].drop_duplicates()
 
     # Load grids
     ## note numpy is able to load from a compressed file, ending with .gz or .bz2
@@ -240,6 +176,23 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     slope_interpolate = Mrunlib.create_ascii_grid_interpolator(slope_grid, slope_metadata)
     print("read: ", path_to_slope_grid)
 
+    # Create the function for the mask. This function will later use the additional column in a setup file!
+
+    def create_mask_from_shapefile(REGIONS, region_name, path_to_soil_grid):
+        regions_df = gpd.read_file(REGIONS)
+        region = regions_df[regions_df["id"] == int(region_name)]
+
+        # This is needed to read the transformation data correctly from the file. With the original opening it does not work
+        with rasterio.open(path_to_soil_grid) as dataset:
+            soil_grid = dataset.read(1)
+            transform = dataset.transform
+
+        rows, cols = soil_grid.shape
+        mask = rasterio.features.geometry_mask([region.geometry.values[0]], out_shape=(rows, cols), transform=transform,
+                                               invert=True)
+
+        return mask
+
     sent_env_count = 0
     start_time = time.perf_counter()
 
@@ -248,6 +201,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # run calculations for each setup
     for _, setup_id in enumerate(run_setups):
         soil_grid = soil_grid_original.copy()
+
         if setup_id not in setups:
             continue
         start_setup_time = time.perf_counter()
@@ -259,12 +213,12 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         ensmem = setup["ensmem"]
         version = setup["version"]
         crop_id = setup["crop-id"]
-        region_id = setup["region_id"]
-        
-        crop_data = setup["crop_data"]
+        region_name = setup["region_id"]
+
+        crop_data=setup["crop_data"]
 
         DATA_GRID_CROPS = str("france/raster/" + crop_data)
-        path_to_crop_grid = paths["path-to-data-dir"] + DATA_GRID_CROPS
+        path_to_crop_grid = paths["path-to-data-dir"]+DATA_GRID_CROPS  
         crop_epsg_code = int(path_to_crop_grid.split("/")[-1].split("_")[2])
         crop_crs = CRS.from_epsg(crop_epsg_code)
         if crop_crs not in soil_crs_to_x_transformers:
@@ -274,16 +228,25 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         crop_interpolate = Mrunlib.create_ascii_grid_interpolator(crop_grid, crop_meta)
         print("read: ", path_to_crop_grid)
 
-        if region_id and len(region_id) > 0:
+        if region_name and len(region_name) > 0:
             # Create the soil mask for the specific region
-            mask = create_mask_from_shapefile(REGIONS, region_id, path_to_soil_grid)
+            mask = create_mask_from_shapefile(REGIONS, region_name, path_to_soil_grid)
 
             # Apply the soil mask to the soil grid
             soil_grid_copy = soil_grid.copy()
             soil_grid[mask == False] = -8888
             soil_grid[soil_grid_copy == -9999] = -9999
 
-        # read template sim.json
+        cdict = {}
+        # path to latlon-to-rowcol.json
+        # path = TEMPLATE_PATH_LATLON.format(path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
+        path = TEMPLATE_PATH_LATLON.format(
+            path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
+        climate_data_interpolator = Mrunlib.create_climate_geoGrid_interpolator_from_json_file(path, wgs84_crs,
+                                                                                               soil_crs, cdict)
+        print("created climate_data to gk5 interpolator: ", path)
+
+        # read template sim.json 
         with open(setup.get("sim.json", config["sim.json"])) as _:
             sim_json = json.load(_)
         # change start and end date according to setup
@@ -329,37 +292,11 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         yllcorner = int(soil_metadata["yllcorner"])
         nodata_value = int(soil_metadata["nodata_value"])
 
+        # unknown_soil_ids = set()
+        soil_id_cache = {}
         print("All Rows x Cols: " + str(srows) + "x" + str(scols))
         # cs__ = open("coord_mapping_etrs89-utm32n_to_wgs84-latlon.csv", "w")
         # cs__.write("row,col,center_25832_etrs89-utm32n_r,center_25832_etrs89-utm32n_h,center_lat,center_lon\n")
-
-        # Create coordinate grid once
-        grid_x = xllcorner + (scellsize / 2) + np.arange(scols) * scellsize
-        grid_y = yllcorner + (scellsize / 2) + (srows - np.arange(srows) - 1) * scellsize
-
-        # Generate all possible (x, y) coordinates
-        grid_xx, grid_yy = np.meshgrid(grid_x, grid_y)
-
-        # Create mask for valid soil cells
-        valid_mask = soil_grid != nodata_value
-
-        # Extract coordinates only for valid cells
-        valid_x = grid_xx[valid_mask]
-        valid_y = grid_yy[valid_mask]
-
-        # Transform all coordinates at once
-        transformer = soil_crs_to_x_transformers[wgs84_crs]
-        valid_lats, valid_lons = transformer.transform(valid_x, valid_y)
-
-        # Find nearest climate stations for all valid points at once
-        nearest_points = get_nearest_climate_id(climate_data_df, valid_lats, valid_lons)
-
-        # Create mapping from grid indices to climate stations
-        climate_station_map = {}
-        valid_indices = np.argwhere(valid_mask)
-
-        for i, (row, col) in enumerate(valid_indices):
-            climate_station_map[(row, col)] = nearest_points[i]
 
         for srow in range(0, srows):
             print(srow, end=", ")
@@ -374,29 +311,11 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 if soil_id == nodata_value:
                     continue
 
-                # get coordinate of closest climate element of real soil-cell
+                # get coordinate of clostest climate element of real soil-cell
                 sh = yllcorner + (scellsize / 2) + (srows - srow - 1) * scellsize
                 sr = xllcorner + (scellsize / 2) + scol * scellsize
                 # inter = crow/ccol encoded into integer
-                # crow, ccol = climate_data_interpolator(sr, sh)
-
-                # Get climate station data
-                if (srow, scol) in climate_station_map:
-                    closest_lat, closest_lon = climate_station_map[(srow, scol)]
-
-                    station_data = unique_climate_stations[
-                        (unique_climate_stations["LAT"] == closest_lat) &
-                        (unique_climate_stations["LON"] == closest_lon)
-                        ]
-
-                    if station_data.empty:
-                        continue
-
-                    station_id = station_data["ID"].iloc[0]
-                    climate_file_path = f"{paths['monica-path-to-climate-dir']}montpellier/version3/{station_id}.csv"
-                    env_template["pathToClimateCSV"] = [climate_file_path]
-                else:
-                    continue
+                crow, ccol = climate_data_interpolator(sr, sh)
 
                 crop_grid_id = int(crop_grid[srow, scol])
                 # print(crop_grid_id)
@@ -405,7 +324,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                     env_template["customId"] = {
                         "setup_id": setup_id,
                         "srow": srow, "scol": scol,
-                        "station_id": int(station_id),
+                        "crow": int(crow), "ccol": int(ccol),
                         "soil_id": soil_id,
                         "env_id": sent_env_count,
                         "nodata": True,
@@ -433,7 +352,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 if soil_id in soil_id_cache:
                     soil_profile = soil_id_cache[soil_id]
                 else:
-                    soil_profile = fr_soil_io3.soil_parameters(soil_db_con, soil_id)
+                    soil_profile = soil_io3.soil_parameters(soil_db_con, soil_id)
                     soil_id_cache[soil_id] = soil_profile
 
                 if len(soil_profile) == 0:
@@ -443,7 +362,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                     env_template["customId"] = {
                         "setup_id": setup_id,
                         "srow": srow, "scol": scol,
-                        "station_id": int(station_id),
+                        "crow": int(crow), "ccol": int(ccol),
                         "soil_id": soil_id,
                         "env_id": sent_env_count,
                         "nodata": True,
@@ -505,11 +424,13 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                     env_template["params"]["siteParameters"]["heightNN"] = float(height_nn)
 
                 if setup["slope"]:
-                    env_template["params"]["siteParameters"]["slope"] = slope / 100
+                    env_template["params"]["siteParameters"]["slope"] = slope / 100.0
 
                 if setup["latitude"]:
-                    env_template["params"]["siteParameters"]["Latitude"] = valid_lats[
-                        np.where((valid_indices == [srow, scol]).all(axis=1))[0][0]]
+                    # clat, _ = cdict[(crow, ccol)]
+                    # env_template["params"]["siteParameters"]["Latitude"] = clat
+                    slat, slon = soil_crs_to_x_transformers[wgs84_crs].transform(sr, sh)
+                    env_template["params"]["siteParameters"]["Latitude"] = slat
 
                 if setup["CO2"]:
                     env_template["params"]["userEnvironmentParameters"]["AtmosphericCO2"] = float(setup["CO2"])
@@ -549,16 +470,18 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
                 env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
 
-                # Climate data
+                ##### climate data
+                env_template["pathToClimateCSV"] = \
+                    paths["monica-path-to-climate-dir"] + f"montpellier/version3/{int(ccol)}.csv"
                 print("pathToClimateCSV:", env_template["pathToClimateCSV"])
 
-                # if DEBUG_WRITE_CLIMATE:
+                #if DEBUG_WRITE_CLIMATE:
                 #    listOfClimateFiles.add(subpath_to_csv)
 
                 env_template["customId"] = {
                     "setup_id": setup_id,
                     "srow": srow, "scol": scol,
-                    "station_id": int(station_id),
+                    "crow": int(crow), "ccol": int(ccol),
                     "soil_id": soil_id,
                     "env_id": sent_env_count,
                     "nodata": False
@@ -591,7 +514,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
             env_template["pathToClimateCSV"] = ""
             env_template["customId"] = {
                 "setup_id": setup_id,
-                "no_of_sent_envs": sent_env_count,
+                "no_of_sent_envs": sent_env_count
             }
             socket.send_json(env_template)
 
