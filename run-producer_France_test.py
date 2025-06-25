@@ -67,7 +67,7 @@ DATA_GRID_HEIGHT = "france/montpellier_100_2154_DEM.asc"
 DATA_GRID_SLOPE = "france/montpellier_100_2154_slope_percent.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
 
-TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/montpellier/latlon-to-rowcol.json"
+TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/montpellier/latlon_to_rowcol.json"
 # TEMPLATE_PATH_LATLON = "data/france/latlon_to_rowcol.json"
 TEMPLATE_PATH_CLIMATE_CSV = "montpellier/version3/{int(ccol)}.csv"
 
@@ -243,7 +243,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         # path = TEMPLATE_PATH_LATLON.format(
         #     path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
         path = TEMPLATE_PATH_LATLON.format(
-            path_to_climate_dir=paths["monica-path-to-climate-dir"] + "/")
+            path_to_climate_dir=paths["path-to-climate-dir"] + "/")
         climate_data_interpolator = Mrunlib.create_climate_geoGrid_interpolator_from_json_file(path, wgs84_crs,
                                                                                                soil_crs, cdict)
         print("created climate_data to gk5 interpolator: ", path)
