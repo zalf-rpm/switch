@@ -27,6 +27,7 @@ import zmq
 import geopandas as gpd
 import rasterio
 from rasterio import features
+import subprocess
 
 import monica_io3
 import fr_soil_io3
@@ -92,14 +93,14 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         "mode": "re-local-remote",
         "server-port": server["port"] if server["port"] else "6667",
         "server": server["server"] if server["server"] else "login01.cluster.zalf.de",
-        "start-row": "1744",
+        "start-row": "0",
         "end-row": "-1",
         "path_to_dem_grid": "",
         "sim.json": "sim_fr.json",
         "crop.json": "crop_France.json",
         "site.json": "site_France.json",
         "setups-file": "sim_setups_france_LF.csv",
-        "run-setups": "[60]",
+        "run-setups": "[1]",
         "shared_id": shared_id
     }
 
@@ -116,11 +117,11 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     paths = PATHS[config["mode"]]
 
     soil_db_path = paths["path-to-data-dir"] + DATA_SOIL_DB
-    # subprocess.run(["wget", "-O", soil_db_path, SOIL_DB_URL], check=True)
-    # print("Downloaded soil db successfully.")
+    subprocess.run(["wget", "-O", soil_db_path, SOIL_DB_URL], check=True)
+    print("Downloaded soil db successfully.")
 
     # open soil db connection
-    soil_db_con = sqlite3.connect(paths["path-to-data-dir"] + DATA_SOIL_DB)
+    soil_db_con = sqlite3.connect(soil_db_path)
     socket.connect("tcp://" + config["server"] + ":" + str(config["server-port"]))
 
     # read setup from csv file
