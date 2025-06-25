@@ -240,9 +240,10 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
         cdict = {}
         # path to latlon-to-rowcol.json
-        # path = TEMPLATE_PATH_LATLON.format(path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
+        # path = TEMPLATE_PATH_LATLON.format(
+        #     path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
         path = TEMPLATE_PATH_LATLON.format(
-            path_to_climate_dir=paths["path-to-climate-dir"] + setup["climate_path_to_latlon_file"] + "/")
+            path_to_climate_dir=paths["monica-path-to-climate-dir"] + "/")
         climate_data_interpolator = Mrunlib.create_climate_geoGrid_interpolator_from_json_file(path, wgs84_crs,
                                                                                                soil_crs, cdict)
         print("created climate_data to gk5 interpolator: ", path)
