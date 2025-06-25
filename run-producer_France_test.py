@@ -117,8 +117,24 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     paths = PATHS[config["mode"]]
 
     soil_db_path = paths["path-to-data-dir"] + DATA_SOIL_DB
-    subprocess.run(["wget", "-O", soil_db_path, SOIL_DB_URL], check=True)
-    print("Downloaded soil db successfully.")
+    # subprocess.run(["wget", "-O", soil_db_path, SOIL_DB_URL], check=True)
+    # print("Downloaded soil db successfully.")
+
+    soil_db_dir = os.path.dirname(soil_db_path)
+
+    if not os.path.exists(soil_db_path):
+        print(f"Soil db not found at {soil_db_path}.")
+        try:
+            subprocess.run(["git", "lfs", "pull"], cwd=soil_db_dir, check=True)
+        except Exception as e:
+            print(f"git lfs pull failed: {e}")
+
+        if not os.path.exists(soil_db_path):
+            os.makedirs(soil_db_dir, exist_ok=True)
+            subprocess.run(["wget", "-O", soil_db_path, SOIL_DB_URL], check=True)
+            print("Downloaded soil db successfully.")
+        else:
+            print("Soil db pulled with git lfs.")
 
     # open soil db connection
     soil_db_con = sqlite3.connect(soil_db_path)
