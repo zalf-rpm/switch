@@ -29,7 +29,7 @@ import rasterio
 from rasterio import features
 
 import monica_io3
-import soil_io3
+import fr_soil_io3
 import monica_run_lib as Mrunlib
 
 PATHS = {
@@ -352,7 +352,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 if soil_id in soil_id_cache:
                     soil_profile = soil_id_cache[soil_id]
                 else:
-                    soil_profile = soil_io3.soil_parameters(soil_db_con, soil_id)
+                    soil_profile = fr_soil_io3.soil_parameters(soil_db_con, soil_id)
                     soil_id_cache[soil_id] = soil_profile
 
                 if len(soil_profile) == 0:
