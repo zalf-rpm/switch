@@ -177,8 +177,16 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     slope_interpolate = Mrunlib.create_ascii_grid_interpolator(slope_grid, slope_metadata)
     print("read: ", path_to_slope_grid)
 
-    # Create the function for the mask. This function will later use the additional column in a setup file!
+    # Region ID just for this part of France.
+    # id:name
+    # 1: Aude
+    # 2: Tarn
+    # 3: Averyron
+    # 4: Lozere
+    # 5: Gard
+    # 6: Herault
 
+    # Create the function for the mask. This function will later use the additional column in a setup file!
     def create_mask_from_shapefile(REGIONS, region_name, path_to_soil_grid):
         regions_df = gpd.read_file(REGIONS)
         region = regions_df[regions_df["id"] == int(region_name)]
