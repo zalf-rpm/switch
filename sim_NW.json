@@ -1,7 +1,7 @@
 {
 	"__note__": "09/2023 : Version for simulations of historic and current plant growth. There is a different version for historic plant growth because of different headers.",
-	"crop.json": "crop.json",
-	"site.json": "site.json",
+	"crop.json": "crop_NW.json",
+	"site.json": "site_NW.json",
 	"climate.csv": "",
 
 	"climate.csv-options": {

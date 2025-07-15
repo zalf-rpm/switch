@@ -119,10 +119,10 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         "start-row": "0",
         "end-row": "-1",
         "path_to_dem_grid": "",
-        "sim.json": "sim.json",
-        "crop.json": "crop.json",
-        "site.json": "site.json",
-        "setups-file": "sim_setups.csv",
+        "sim.json": "sim_NW.json",
+        "crop.json": "crop_NW.json",
+        "site.json": "site_NW.json",
+        "setups-file": "sim_setups_NW.csv",
         "run-setups": "[1]",
         "shared_id": shared_id
     }
@@ -225,13 +225,13 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # print("read: ", path_to_irrigation_grid)
 
     # initialize irrigation manager
-    irrigation_manager = IrrigationManager("irrigated_crops.json")
+    # irrigation_manager = IrrigationManager("irrigated_crops.json")
 
     # Create the function for the mask. This function will later use the additional column in a setup file!
 
     def create_mask_from_shapefile(NUTS1_REGIONS, region_name, path_to_soil_grid):
         regions_df = gpd.read_file(NUTS1_REGIONS)
-        region = regions_df[regions_df["NUTS_NAME"] == region_name]
+        region = regions_df[regions_df["region"] == region_name]
 
         # This is needed to read the transformation data correctly from the file. With the original opening it does not work
         with rasterio.open(path_to_soil_grid) as dataset:
@@ -342,7 +342,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         crop_json["cropRotation"][2] = crop_id
 
         # create environment template from json templates
-        env_template = monica_io3.create_env_json_from_json_config({
+        env_template = monica_io3_NW.create_env_json_from_json_config({
             "crop": crop_json,
             "site": site_json,
             "sim": sim_json,
