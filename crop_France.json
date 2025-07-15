@@ -93,7 +93,7 @@
 			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/potato.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/moderately-early-potato.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/moderately-early-potato_FRA.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/potato.json"]
 		},
