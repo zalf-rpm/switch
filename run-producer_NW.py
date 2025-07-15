@@ -96,7 +96,7 @@ TEMPLATE_PATH_CLIMATE_CSV = "{gcm}/{rcm}/{scenario}/{ensmem}/{version}/{crow}/da
 # NUTS3_REGIONS = "data/germany/NUTS_RG_03M_25832.shp"
 NUTS1_REGIONS = "data/germany/shapefiles/Nordrhein_Westfalen.shp"
 
-TEMPLATE_PATH_HARVEST = "{path_to_data_dir}/projects/monica-germany/ILR_SEED_HARVEST_doys_{crop_id}.csv"
+# TEMPLATE_PATH_HARVEST = "{path_to_data_dir}/projects/monica-germany/ILR_SEED_HARVEST_doys_{crop_id}.csv"
 
 gdf = gpd.read_file(NUTS1_REGIONS)
 
@@ -292,18 +292,18 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
             soil_grid[soil_grid_copy == -9999] = -9999
 
         # add crop id from setup file
-        try:
-            # read seed/harvest dates for each crop_id
-            path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
-                                                        crop_id=crop_id_short)
-            print("created seed harvest gk5 interpolator and read data: ", path_harvest)
-            Mrunlib.create_seed_harvest_geoGrid_interpolator_and_read_data(path_harvest, wgs84_crs, utm32_crs,
-                                                                           ilr_seed_harvest_data)
-        except IOError:
-            path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
-                                                        crop_id=crop_id_short)
-            print("Couldn't read file:", path_harvest)
-            continue
+        # try:
+        #     # read seed/harvest dates for each crop_id
+        #     path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
+        #                                                 crop_id=crop_id_short)
+        #     print("created seed harvest gk5 interpolator and read data: ", path_harvest)
+        #     Mrunlib.create_seed_harvest_geoGrid_interpolator_and_read_data(path_harvest, wgs84_crs, utm32_crs,
+        #                                                                    ilr_seed_harvest_data)
+        # except IOError:
+        #     path_harvest = TEMPLATE_PATH_HARVEST.format(path_to_data_dir=paths["path-to-data-dir"],
+        #                                                 crop_id=crop_id_short)
+        #     print("Couldn't read file:", path_harvest)
+        #     continue
 
         cdict = {}
         # path to latlon-to-rowcol.json
@@ -342,7 +342,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         crop_json["cropRotation"][2] = crop_id
 
         # create environment template from json templates
-        env_template = monica_io3_NW.create_env_json_from_json_config({
+        env_template = monica_io3.create_env_json_from_json_config({
             "crop": crop_json,
             "site": site_json,
             "sim": sim_json,
@@ -579,10 +579,10 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 slr, slh = tcoords[slope_crs]
                 slope = slope_interpolate(slr, slh)
 
-                if irrigation_crs not in tcoords:
-                    tcoords[irrigation_crs] = soil_crs_to_x_transformers[irrigation_crs].transform(sr, sh)
-                irr_r, irr_h = tcoords[irrigation_crs]
-                irrigation = int(irrigation_interpolate(irr_r, irr_h))
+                # if irrigation_crs not in tcoords:
+                #     tcoords[irrigation_crs] = soil_crs_to_x_transformers[irrigation_crs].transform(sr, sh)
+                # irr_r, irr_h = tcoords[irrigation_crs]
+                # irrigation = int(irrigation_interpolate(irr_r, irr_h))
 
                 env_template["params"]["userCropParameters"]["__enable_T_response_leaf_expansion__"] = setup[
                     "LeafExtensionModifier"]
@@ -657,38 +657,38 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 env_template["params"]["simulationParameters"]["UseNMinMineralFertilisingMethod"] = setup[
                     "fertilization"]
 
-                if setup["irrigation"] and irrigation == 1:
-                    # check if the crop type is in the irrigated crops map
-                    if irrigation_manager.should_be_irrigated_by_crop_id(setup["crop-id"]):
-                        env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = True
-                        # add default values for irrigation amount and threshold
-                        env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["amount"] = [10, "mm"]
-                        env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
-                            "trigger_if_nFC_below_%"] = [30, "%"]
-                        env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
-                            "set_to_%nFC"] = [100, "%"]
-                        env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
-                            "calc_nFC_until_depth_m"] = [0.3, "m"]
-                        print("irrigation amount:",
-                              env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["amount"])
-                    else:
-                        env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = False
-                        # reset irrigation amount and threshold
-                        env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["amount"] = [0, "mm"]
-                        env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
-                            "trigger_if_nFC_below_%"] = [50, "%"]
-                        env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
-                            "set_to_%nFC"] = [100, "%"]
-                        env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
-                            "calc_nFC_until_depth_m"] = [0.5, "m"]
-                else:
-                    env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = False
-                    env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["amount"] = [0, "mm"]
-                    env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["trigger_if_nFC_below_%"] = [
-                        50, "%"]
-                    env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["set_to_%nFC"] = [100, "%"]
-                    env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["calc_nFC_until_depth_m"] = [
-                        0.5, "m"]
+                # if setup["irrigation"] and irrigation == 1:
+                #     # check if the crop type is in the irrigated crops map
+                #     if irrigation_manager.should_be_irrigated_by_crop_id(setup["crop-id"]):
+                #         env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = True
+                #         # add default values for irrigation amount and threshold
+                #         env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["amount"] = [10, "mm"]
+                #         env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
+                #             "trigger_if_nFC_below_%"] = [30, "%"]
+                #         env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
+                #             "set_to_%nFC"] = [100, "%"]
+                #         env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
+                #             "calc_nFC_until_depth_m"] = [0.3, "m"]
+                #         print("irrigation amount:",
+                #               env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["amount"])
+                #     else:
+                #         env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = False
+                #         # reset irrigation amount and threshold
+                #         env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["amount"] = [0, "mm"]
+                #         env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
+                #             "trigger_if_nFC_below_%"] = [50, "%"]
+                #         env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
+                #             "set_to_%nFC"] = [100, "%"]
+                #         env_template["params"]["simulationParameters"]["AutoIrrigationParams"][
+                #             "calc_nFC_until_depth_m"] = [0.5, "m"]
+                # else:
+                #     env_template["params"]["simulationParameters"]["UseAutomaticIrrigation"] = False
+                #     env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["amount"] = [0, "mm"]
+                #     env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["trigger_if_nFC_below_%"] = [
+                #         50, "%"]
+                #     env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["set_to_%nFC"] = [100, "%"]
+                #     env_template["params"]["simulationParameters"]["AutoIrrigationParams"]["calc_nFC_until_depth_m"] = [
+                #         0.5, "m"]
 
                 env_template["params"]["simulationParameters"]["NitrogenResponseOn"] = setup["NitrogenResponseOn"]
                 env_template["params"]["simulationParameters"]["WaterDeficitResponseOn"] = setup[
