@@ -17,21 +17,23 @@
 
 from collections import defaultdict, OrderedDict
 import csv
+from datetime import datetime
+import gc
+import json
 import numpy as np
 import os
 from pyproj import CRS, Transformer
+import sqlite3
 import sys
+import timeit
+import types
 import zmq
 
 import monica_io3
+import soil_io3
 import monica_run_lib as Mrunlib
 
 PATHS = {
-    "re-local-remote": {
-        "path-to-data-dir": "./data/",
-        "path-to-output-dir": "D:/monica_agritwin/out/out/",
-        "path-to-csv-output-dir": "D:/monica_agritwin/out/csv-out/"
-    },
     "mbm-local-remote": {
         "path-to-data-dir": "data/",
         "path-to-output-dir": "out/",
@@ -43,10 +45,7 @@ PATHS = {
         "path-to-csv-output-dir": "/out/csv-out/"
     }
 }
-# TEMPLATE_SOIL_PATH = "{local_path_to_data_dir}germany/buek200_1000_25832_etrs89-utm32n.asc"
-#TEMPLATE_SOIL_PATH = "{local_path_to_data_dir}germany/buek200_100_25832_etrs89-utm32n.asc"
-#TEMPLATE_SOIL_PATH = "{local_path_to_data_dir}germany/LS_buek200_100_25832_etrs89-utm32n_2.asc"
-TEMPLATE_SOIL_PATH = "{local_path_to_data_dir}germany/NW_soil_100_25832_etrs89-utm32n.asc"
+TEMPLATE_SOIL_PATH = "{local_path_to_data_dir}germany/buek200_100_25832_etrs89-utm32n.asc"
 # TEMPLATE_LANDUSE_PATH = "{local_path_to_data_dir}germany/landuse_1000_31469_gk5.asc"
 # DATA_SOIL_DB = "germany/buek200.sqlite"
 USE_LANDUSE = False
@@ -84,11 +83,10 @@ def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, pat
     make_dict_nparr = lambda: defaultdict(lambda: np.full((ncols,), -9999, dtype=np.float))
 
     output_grids = {
-        "Yield": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "Evapotranspiration": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "Act_ET": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        "Pot_ET": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1}
+        "Yield": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1}
     }
+# "Yield": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+
     output_keys = list(output_grids.keys())
 
     cmc_to_crop = {}
@@ -194,8 +192,8 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
     """collect data from workers"""
 
     config = {
-        "mode": "re-local-remote",  # "mbm-local-remote",
-        "port": server["port"] if server["port"] else "7778",
+        "mode": "mbm-local-remote",
+        "port": server["port"] if server["port"] else "7777",
         "server": server["server"] if server["server"] else "login01.cluster.zalf.de",
         "start-row": "0",
         "end-row": "-1",
@@ -228,7 +226,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
     socket.connect("tcp://" + config["server"] + ":" + config["port"])
     socket.RCVTIMEO = config["timeout"]
     leave = False
-    write_normal_output_files = True
+    write_normal_output_files = False
 
     path_to_soil_grid = TEMPLATE_SOIL_PATH.format(local_path_to_data_dir=paths["path-to-data-dir"])
     soil_epsg_code = int(path_to_soil_grid.split("/")[-1].split("_")[2])
@@ -243,33 +241,6 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
     yllcorner = int(soil_metadata["yllcorner"])
     nodata_value = int(soil_metadata["nodata_value"])
 
-    # if USE_LANDUSE:
-    #     path_to_landuse_grid = TEMPLATE_LANDUSE_PATH.format(local_path_to_data_dir=paths["path-to-data-dir"])
-    #     landuse_epsg_code = int(path_to_landuse_grid.split("/")[-1].split("_")[2])
-    #     landuse_crs = CRS.from_epsg(landuse_epsg_code)
-    #     landuse_transformer = Transformer.from_crs(soil_crs, landuse_crs)
-    #     landuse_meta, _ = Mrunlib.read_header(path_to_landuse_grid)
-    #     landuse_grid = np.loadtxt(path_to_landuse_grid, dtype=int, skiprows=6)
-    #     landuse_interpolate = Mrunlib.create_ascii_grid_interpolator(landuse_grid, landuse_meta)
-
-    #     for srow in range(0, srows):
-    #         # print(srow)
-    #         for scol in range(0, scols):
-    #             soil_id = soil_grid_template[srow, scol]
-    #             if soil_id == -9999:
-    #                 continue
-
-    #             # get coordinate of clostest climate element of real soil-cell
-    #             sh = yllcorner + (scellsize / 2) + (srows - srow - 1) * scellsize
-    #             sr = xllcorner + (scellsize / 2) + scol * scellsize
-
-    #             # check if current grid cell is used for agriculture                
-    #             lur, luh = landuse_transformer(sh, sr)
-    #             landuse_id = landuse_interpolate(lur, luh)
-    #             if landuse_id not in [2, 3, 4]:
-    #                 soil_grid_template[srow, scol] = -9999
-
-    #     print("filtered through CORINE")
 
     # set all data values to one, to count them later
     soil_grid_template[soil_grid_template != nodata_value] = 1
@@ -293,6 +264,15 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
         "datacell-count": datacells_per_row.copy(),
         "next-row": start_row
     })
+    setup_id_to_sensitivity_data = defaultdict(lambda: {
+        "year_to_yields": defaultdict(list),
+        "year_to_abbiom": defaultdict(list),
+        "envs_received": 0,
+        "no_of_envs_expected": None,
+        "out_dir_exists": False,
+        "param_name": None,
+        "param_value": None
+    })
 
     def process_message(msg):
         if len(msg["errors"]) > 0:
@@ -308,73 +288,134 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
         if not write_normal_output_files:
             custom_id = msg["customId"]
             setup_id = custom_id["setup_id"]
-            is_nodata = custom_id["nodata"]
 
-            data = setup_id_to_data[setup_id]
+            if custom_id["is_sensitivity_analysis"]:
+                sdata = setup_id_to_sensitivity_data[setup_id]
 
-            row = custom_id["srow"]
-            col = custom_id["scol"]
-            # crow = custom_id.get("crow", -1)
-            # ccol = custom_id.get("ccol", -1)
-            # soil_id = custom_id.get("soil_id", -1)
+                print("received result custom_id:", custom_id)
 
-            debug_msg = "received work result " + str(process_message.received_env_count) + " customId: " + str(
-                msg.get("customId", "")) \
-                        + " next row: " + str(data["next-row"]) \
-                        + " cols@row to go: " + str(data["datacell-count"][row]) + "@" + str(
-                row) + " cells_per_row: " + str(datacells_per_row[row])  # \
-            # + " rows unwritten: " + str(data["row-col-data"].keys())
-            print(debug_msg)
-            # debug_file.write(debug_msg + "\n")
-            if is_nodata:
-                data["row-col-data"][row][col] = -9999
+                param_name = param_value = None
+                if "no_of_sent_envs" in custom_id:
+                    sdata["no_of_envs_expected"] = custom_id["no_of_sent_envs"]
+                else:
+                    sdata["envs_received"] += 1
+
+                    if not sdata["param_name"]:
+                        sdata["param_name"] = custom_id["param_name"]
+                    if not sdata["param_value"]:
+                        sdata["param_value"] = custom_id["param_value"]
+
+                    for data in msg.get("data", []):
+                        results = data.get("results", [])
+                        for vals in results:
+                            if "Year" in vals:
+                                sdata["year_to_yields"][int(vals["Year"])].append(vals["Yield"])
+                                sdata["year_to_abbiom"][int(vals["Year"])].append(vals["AbBiom"])
+
+                if sdata["no_of_envs_expected"] == sdata["envs_received"]:
+                    path_to_out_dir = config["out"]  # + str(setup_id) + "/"
+                    print(path_to_out_dir)
+                    if not sdata["out_dir_exists"]:
+                        if os.path.isdir(path_to_out_dir) and os.path.exists(path_to_out_dir):
+                            sdata["out_dir_exists"] = True
+                        else:
+                            try:
+                                os.makedirs(path_to_out_dir)
+                                sdata["out_dir_exists"] = True
+                            except OSError:
+                                print("c: Couldn't create dir:", path_to_out_dir, "! Exiting.")
+                                exit(1)
+
+                        year_to_avg_values = defaultdict(dict)
+                        for key, name in {
+                            "year_to_yields": "yield",
+                            "year_to_abbiom": "abbiom"}.items():
+                            for year, values in sdata[key].items():
+                                no_of_values = len(values)
+                                if no_of_values > 0:
+                                    year_to_avg_values[year][name] = round(sum(values) / no_of_values, 2)
+
+                        path_to_out_file = f"{path_to_out_dir}/setup-{setup_id}_sensitivity.csv"
+                        with open(path_to_out_file, "a") as _:
+                            _.write(f"Year, Yield, AbBiom, {sdata['param_name']}\n")
+                            for year, avg_vals in year_to_avg_values.items():
+                                _.write(f"{year}, {avg_vals['yield']}, {avg_vals['abbiom']}, {sdata['param_value']}\n")
+
+                    print("last expected env received")
+
+                    # reset and wait for next round
+                    sdata["year_to_yields"].clear()
+                    sdata["year_to_abbiom"].clear()
+                    sdata["no_of_envs_expected"] = None
+                    sdata["envs_received"] = 0
+
             else:
-                data["row-col-data"][row][col].append(create_output(msg))
-            data["datacell-count"][row] -= 1
+                is_nodata = custom_id["nodata"]
+                data = setup_id_to_data[setup_id]
 
-            process_message.received_env_count = process_message.received_env_count + 1
+                row = custom_id["srow"]
+                col = custom_id["scol"]
+                # crow = custom_id.get("crow", -1)
+                # ccol = custom_id.get("ccol", -1)
+                # soil_id = custom_id.get("soil_id", -1)
 
-            while (data["next-row"] in data["row-col-data"] and data["datacell-count"][data["next-row"]] == 0) \
-                    or (
-                    len(data["datacell-count"]) > data["next-row"] and data["datacell-count"][data["next-row"]] == 0):
-
-                path_to_out_dir = config["out"] + str(setup_id) + "/"
-                path_to_csv_out_dir = config["csv-out"] + str(setup_id) + "/"
-                print(path_to_out_dir)
-                if not data["out_dir_exists"]:
-                    if os.path.isdir(path_to_out_dir) and os.path.exists(path_to_out_dir):
-                        data["out_dir_exists"] = True
-                    else:
-                        try:
-                            os.makedirs(path_to_out_dir)
-                            data["out_dir_exists"] = True
-                        except OSError:
-                            print("c: Couldn't create dir:", path_to_out_dir, "! Exiting.")
-                            exit(1)
-                    if os.path.isdir(path_to_csv_out_dir) and os.path.exists(path_to_csv_out_dir):
-                        data["out_dir_exists"] = True
-                    else:
-                        try:
-                            os.makedirs(path_to_csv_out_dir)
-                            data["out_dir_exists"] = True
-                        except OSError:
-                            print("c: Couldn't create dir:", path_to_csv_out_dir, "! Exiting.")
-                            exit(1)
-
-                write_row_to_grids(data["row-col-data"], data["next-row"], data["ncols"], data["header"],
-                                   path_to_out_dir, path_to_csv_out_dir, setup_id)
-
-                debug_msg = "wrote row: " + str(data["next-row"]) + " next-row: " + str(
-                    data["next-row"] + 1) + " rows unwritten: " + str(list(data["row-col-data"].keys()))
+                debug_msg = "received work result " + str(process_message.received_env_count) + " customId: " + str(
+                    msg.get("customId", "")) \
+                            + " next row: " + str(data["next-row"]) \
+                            + " cols@row to go: " + str(data["datacell-count"][row]) + "@" + str(
+                    row) + " cells_per_row: " + str(datacells_per_row[row])  # \
+                # + " rows unwritten: " + str(data["row-col-data"].keys())
                 print(debug_msg)
                 # debug_file.write(debug_msg + "\n")
+                if is_nodata:
+                    data["row-col-data"][row][col] = -9999
+                else:
+                    data["row-col-data"][row][col].append(create_output(msg))
+                data["datacell-count"][row] -= 1
 
-                data["next-row"] += 1  # move to next row (to be written)
+                process_message.received_env_count = process_message.received_env_count + 1
 
-                if leave_after_finished_run \
-                        and ((data["end_row"] < 0 and data["next-row"] > data["nrows"] - 1)
-                             or (0 <= data["end_row"] < data["next-row"])):
-                    process_message.setup_count += 1
+                while (data["next-row"] in data["row-col-data"] and data["datacell-count"][data["next-row"]] == 0) \
+                        or (
+                        len(data["datacell-count"]) > data["next-row"] and data["datacell-count"][data["next-row"]] == 0):
+
+                    path_to_out_dir = config["out"] + str(setup_id) + "/"
+                    path_to_csv_out_dir = config["csv-out"] + str(setup_id) + "/"
+                    print(path_to_out_dir)
+                    if not data["out_dir_exists"]:
+                        if os.path.isdir(path_to_out_dir) and os.path.exists(path_to_out_dir):
+                            data["out_dir_exists"] = True
+                        else:
+                            try:
+                                os.makedirs(path_to_out_dir)
+                                data["out_dir_exists"] = True
+                            except OSError:
+                                print("c: Couldn't create dir:", path_to_out_dir, "! Exiting.")
+                                exit(1)
+                        if os.path.isdir(path_to_csv_out_dir) and os.path.exists(path_to_csv_out_dir):
+                            data["out_dir_exists"] = True
+                        else:
+                            try:
+                                os.makedirs(path_to_csv_out_dir)
+                                data["out_dir_exists"] = True
+                            except OSError:
+                                print("c: Couldn't create dir:", path_to_csv_out_dir, "! Exiting.")
+                                exit(1)
+
+                    write_row_to_grids(data["row-col-data"], data["next-row"], data["ncols"], data["header"],
+                                       path_to_out_dir, path_to_csv_out_dir, setup_id)
+
+                    debug_msg = "wrote row: " + str(data["next-row"]) + " next-row: " + str(
+                        data["next-row"] + 1) + " rows unwritten: " + str(list(data["row-col-data"].keys()))
+                    print(debug_msg)
+                    # debug_file.write(debug_msg + "\n")
+
+                    data["next-row"] += 1  # move to next row (to be written)
+
+                    if leave_after_finished_run \
+                            and ((data["end_row"] < 0 and data["next-row"] > data["nrows"] - 1)
+                                 or (0 <= data["end_row"] < data["next-row"])):
+                        process_message.setup_count += 1
 
         elif write_normal_output_files:
             if msg.get("type", "") in ["jobs-per-cell", "no-data", "setup_data"]:
@@ -397,7 +438,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
 
             process_message.wnof_count += 1
 
-            path_to_out_dir = config["csv-out"] + str(setup_id) + "/" + str(row) + "/"
+            path_to_out_dir = config["out"] + str(setup_id) + "/" + str(row) + "/"
             print(path_to_out_dir)
             if not os.path.exists(path_to_out_dir):
                 try:
@@ -423,16 +464,10 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                                                                        include_time_agg=False):
                             writer.writerow(row)
 
-                        # for row in monica_io3.write_output(output_ids, results):
-                        #     writer.writerow(row)
-                        for result in results:
-                            row = []
-                            for output_id in output_ids:
-                                field_name = output_id["name"]
-                                row.append(result.get(field_name, ""))
+                        for row in monica_io3.write_output(output_ids, results):
                             writer.writerow(row)
 
-                writer.writerow([])
+                    writer.writerow([])
 
             process_message.received_env_count = process_message.received_env_count + 1
 
