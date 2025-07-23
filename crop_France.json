@@ -13,7 +13,7 @@
 			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/wheat.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/spring-wheat.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/spring-wheat_FRA.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/wheat.json"]
 		},
@@ -37,7 +37,7 @@
 			"is-winter-crop": true,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/barley.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/winter-barley_bs_dwd_pheno.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/winter-barley_bs_dwd_pheno_FRA.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/barley.json"]
 		},
@@ -45,7 +45,7 @@
 			"is-winter-crop": true,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/rye.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/winter-rye_hhf_dwd_pheno.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/winter-rye_hhf_dwd_pheno_FRA.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/rye.json"]
 		},
@@ -53,7 +53,7 @@
 			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/barley.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/spring-barley_hhf_dwd_pheno.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/spring-barley_hhf_dwd_pheno_FRA.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/barley.json"]
 		},
@@ -61,7 +61,7 @@
 			"is-winter-crop": true,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/rape.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/winter-rape_dwd_pheno.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/winter-rape_dwd_pheno_FRA.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/rape.json"]
 		},
@@ -69,7 +69,7 @@
 			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/maize.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/silage-maize_bs_dwd_pheno.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/silage-maize_bs_dwd_pheno_FRA.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/maize.json"]
 		},
@@ -77,7 +77,7 @@
 			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/maize.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/grain-maize_bs.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/grain-maize_bs_FRA.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/maize.json"]
 		},		
@@ -85,7 +85,7 @@
 			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "crops/species/sugar-beet.json"],
-				"cultivar": ["include-from-file", "crops/cultivars/sugar-beet_bs_dwd_pheno.json"]
+				"cultivar": ["include-from-file", "crops/cultivars/sugar-beet_bs_dwd_pheno_FRA.json"]
 			},
 			"residueParams": ["include-from-file", "crops/residues/beet.json"]
 		},

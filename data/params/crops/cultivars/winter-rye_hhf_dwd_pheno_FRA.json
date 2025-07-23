@@ -1,4 +1,7 @@
-{  
+{ 
+  "metadata": {
+    "description": "Klimertrag parameters. First parameterized on Hohenfinow experiment, then phenology adapted to DWD Jahreszaeler observations.",
+    "date": "01-2022"},
   "WinterCrop": true,
   "AssimilatePartitioningCoeff":[  
     [  
@@ -8,22 +11,22 @@
       0
     ],
     [  
-      0.20000000000000001,
-      0.29999999999999999,
-      0.5,
+      0.2,
+      0.6,
+      0.2,
       0
     ],
     [  
       0.13,
-      0.29999999999999999,
-      0.56999999999999995,
+      0.37,
+      0.5,
       0
     ],
     [  
       0,
       0,
-      0.059999999999999998,
-      0.93999999999999995
+      0.6,
+      0.4
     ],
     [  
       0,
@@ -35,7 +38,7 @@
       0,
       0,
       0,
-      1
+      0
     ]
   ],
   "BaseDaylength":[  
@@ -50,23 +53,23 @@
     "h"
   ],
   "BeginSensitivePhaseHeatStress":[  
-    0,
+    440,
     "°C d"
   ],
   "CriticalTemperatureHeatStress":[  
     31,
     "°C"
   ],
-  "CropHeightP1":6.8400001525878906,
-  "CropHeightP2":0.52999997138977051,
+  "CropHeightP1":12,
+  "CropHeightP2":0.55000001192092896,
   "CropSpecificMaxRootingDepth":1.3999999761581421,
-  "CultivarName":"winter triticale",
+  "CultivarName":"winter rye",
   "DaylengthRequirement":[  
     [  
       0,
       20,
       20,
-      0,
+      20,
       0,
       0
     ],
@@ -82,19 +85,19 @@
     0.5
   ],
   "EndSensitivePhaseHeatStress":[  
-    0,
+    600,
     "°C d"
   ],
-  "FrostDehardening":0,
-  "FrostHardening":0,
-  "HeatSumIrrigationEnd":1676,
-  "HeatSumIrrigationStart":461,
-  "LT50cultivar":0,
+  "FrostDehardening":5.0500001907348633,
+  "FrostHardening":0.014000000432133675,
+  "HeatSumIrrigationEnd":934,
+  "HeatSumIrrigationStart":406,
+  "LT50cultivar":-16,
   "LatestHarvestDoy":-1,
-  "LowTemperatureExposure":0,
-  "MaxAssimilationRate":30,
+  "LowTemperatureExposure":0.65399998426437378,
+  "MaxAssimilationRate":38,
   "MaxCropHeight":[  
-    1.1000000238418579,
+    1.5,
     "m"
   ],
   "OptimumTemperature":[  
@@ -116,7 +119,7 @@
       "organId":4,
       "type":"YieldComponent",
       "yieldDryMatter":0.85999999999999999,
-      "yieldPercentage":0.84999999999999998
+      "yieldPercentage":0.94999999999999996
     }
   ],
   "OrganIdsForSecondaryYield":[  
@@ -130,7 +133,7 @@
       "organId":3,
       "type":"YieldComponent",
       "yieldDryMatter":0.85999999999999999,
-      "yieldPercentage":0.84999999999999998
+      "yieldPercentage":0.90000000000000002
     }
   ],
   "OrganSenescenceRate":[  
@@ -160,36 +163,36 @@
     ],
     [  
       0,
-      0.040000000000000001,
+      0.029999999999999999,
       0,
       0
     ],
     [  
       0,
-      0.040000000000000001,
+      0.029999999999999999,
       0,
       0
     ]
   ],
   "Perennial":false,
-  "ResidueNRatio":0.5,
-  "RespiratoryStress":0,
+  "ResidueNRatio":0.30000001192092896,
+  "RespiratoryStress":0.54000002145767212,
   "SpecificLeafArea":[  
     [  
+      0.0021,
       0.002,
-      0.0018,
-      0.0016999999999999999,
-      0.0016000000000000001,
-      0.0015,
-      0.0015
+      0.002,
+      0.002,
+      0.002,
+      0.002
     ],
     "ha kg-1"
   ],
   "StageKcFactor":[  
     [  
-      0.040000000000000001,
+      0.40000000000000002,
       0.69999999999999996,
-      1,
+      1.1000000000000001,
       1.1000000000000001,
       0.80000000000000004,
       0.25
@@ -198,11 +201,11 @@
   ],
   "StageTemperatureSum":[  
     [  
-      300,
-      650,
-      200,
-      250,
-      300,
+      148,
+      210,
+      280,
+      160,
+      350,
       25
     ],
     "°C d"
