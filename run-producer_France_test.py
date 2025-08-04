@@ -340,7 +340,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                         "nodata": True,
                     }
                     if not DEBUG_DONOT_SEND:
-                        socket.send_json(env_template)
+                        # socket.send_json(env_template)
                         # print("sent nodata env ", sent_env_count, " customId: ", env_template["customId"])
                         sent_env_count += 1
                     continue
@@ -378,7 +378,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                         "nodata": True,
                     }
                     if not DEBUG_DONOT_SEND:
-                        socket.send_json(env_template)
+                        # socket.send_json(env_template)
                         # print("sent nodata env ", sent_env_count, " customId: ", env_template["customId"])
                         sent_env_count += 1
                     continue
