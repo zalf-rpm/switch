@@ -458,6 +458,14 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
             print("Exception:", e)
             # continue
 
+    for setup_id, data in setup_id_to_data.items():
+        for row in range(data["start_row"], data["end_row"] + 1):
+            if row not in data["row-col-data"]:
+                path_to_out_dir = config["out"] + str(setup_id) + "/"
+                path_to_csv_out_dir = config["csv-out"] + str(setup_id) + "/"
+                write_row_to_grids(data["row-col-data"], row, data["ncols"], data["header"],
+                                   path_to_out_dir, path_to_csv_out_dir, setup_id)
+
     print("exiting run_consumer()")
     # debug_file.close()
 
