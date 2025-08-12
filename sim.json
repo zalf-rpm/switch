@@ -42,6 +42,7 @@
 				["CM-count", "FIRST"],
 				["Year", "LAST"],
 				["Crop", "FIRST"],
+				["Yield","LAST"],
 				["TotBiomN","LAST"],
 				["SumNUp","LAST"],
 				["NH3","SUM"],
