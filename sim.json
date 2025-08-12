@@ -44,7 +44,7 @@
 				["Crop", "FIRST"],
 				["Yield","LAST"],
 				["TotBiomN","LAST"],
-				["SumNUp","LAST"],
+				["N2O","SUM"],
 				["NH3","SUM"],
 				["NLeach","SUM"],
 				["Ra","SUM"]
