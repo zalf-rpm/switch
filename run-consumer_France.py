@@ -80,12 +80,14 @@ def write_row_to_grids(row_col_data, row, ncols, header, path_to_output_dir, pat
 
     make_dict_nparr = lambda: defaultdict(lambda: np.full((ncols,), -9999, dtype=np.float64))
 
-    output_grids = {
-        "Yield": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+    output_grids = {"N2O": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
+                    "NEE": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1}
+    }
+        # "Yield": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
         # "Evapotranspiration": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
         # "Act_ET": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1},
-        # "Pot_ET": {"data": make_dict_nparr(), "cast-to": "float", "digits": 1}
-    }
+        # 
+
     output_keys = list(output_grids.keys())
 
     cmc_to_crop = {}

@@ -45,7 +45,7 @@
 				["Yield","LAST"],
 				["TotBiomN","LAST"],
 				["N2O","SUM"],
-				["NH3","SUM"],
+				["NEE","SUM"],
 				["NLeach","SUM"],
 				["Ra","SUM"]
 			]
