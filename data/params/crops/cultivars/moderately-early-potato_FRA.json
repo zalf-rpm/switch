@@ -91,7 +91,7 @@
   "LT50cultivar": -5,
   "LatestHarvestDoy": -1,
   "LowTemperatureExposure": 0.65399998426437378,
-  "MaxAssimilationRate": 22,
+  "MaxAssimilationRate": 23,
   "MaxCropHeight": [
     0.5,
     "m"
@@ -186,7 +186,7 @@
       200,
       300,
       250,
-      700,
+      800,
       25
     ],
     "°C d"
