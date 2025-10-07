@@ -72,8 +72,8 @@ TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/montpellier/latlon_to_rowcol.json"
 TEMPLATE_PATH_CLIMATE_CSV = "montpellier/version3/{int(ccol)}.csv"
 
 # Data for masking the regions 
-REGIONS = "data/france/shapefiles/area60km.shp"
-# REGIONS = "data/france/shapefiles/area_around_montpellier.shp"
+# REGIONS = "data/france/shapefiles/area60km.shp"
+REGIONS = "data/france/shapefiles/area_around_montpellier.shp"
 # REGIONS = "data/france/shapefiles/test.shp"
 
 gdf = gpd.read_file(REGIONS)
