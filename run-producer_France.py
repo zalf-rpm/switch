@@ -69,7 +69,7 @@ DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
 
 TEMPLATE_PATH_LATLON = "{path_to_climate_dir}/montpellier/latlon_to_rowcol.json"
 # TEMPLATE_PATH_LATLON = "data/france/latlon_to_rowcol.json"
-TEMPLATE_PATH_CLIMATE_CSV = "montpellier/version3/{int(ccol)}.csv"
+TEMPLATE_PATH_CLIMATE_CSV = "montpellier/version4/{int(ccol)}.csv"
 
 # Data for masking the regions 
 # REGIONS = "data/france/shapefiles/area60km.shp"
@@ -483,7 +483,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
                 ##### climate data
                 env_template["pathToClimateCSV"] = \
-                    paths["monica-path-to-climate-dir"] + f"montpellier/version3/{int(ccol)}.csv"
+                    paths["monica-path-to-climate-dir"] + f"montpellier/version4/{int(ccol)}.csv"
                 print("pathToClimateCSV:", env_template["pathToClimateCSV"])
 
                 #if DEBUG_WRITE_CLIMATE:
