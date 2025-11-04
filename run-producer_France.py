@@ -40,6 +40,7 @@ PATHS = {
         "monica-path-to-climate-dir": "/monica_data/climate-data/",
         # mounted path to archive accessable by monica executable
         "path-to-data-dir": "./data/",  # mounted path to archive or hard drive with data
+        "path-to-projects-dir": "./data/france/",
         "path-debug-write-folder": "./debug-out/",
     },
     "mbm-local-remote": {
@@ -57,12 +58,14 @@ PATHS = {
         "monica-path-to-climate-dir": "/monica_data/climate-data/",
         # mounted path to archive accessable by monica executable
         "path-to-data-dir": "./data/",  # mounted path to archive or hard drive with data
+        "path-to-projects-dir": "/project/switch/",
         "path-debug-write-folder": "/out/debug-out/",
     }
 }
 
-DATA_SOIL_DB = "france/montpellier_soil_profile_100_v5.sqlite"
-SOIL_DB_URL = "https://github.com/zalf-rpm/switch/raw/refs/heads/main/data/france/montpellier_soil_profile_100_v5.sqlite"
+# DATA_SOIL_DB = "france/montpellier_soil_profile_100_v5.sqlite"
+# SOIL_DB_URL = "https://github.com/zalf-rpm/switch/raw/refs/heads/main/data/france/montpellier_soil_profile_100_v5.sqlite"
+DATA_SOIL_DB = "montpellier_soil_profile_100_v5.sqlite"
 DATA_GRID_HEIGHT = "france/montpellier_100_2154_DEM.asc"
 DATA_GRID_SLOPE = "france/montpellier_100_2154_slope_percent.asc"
 DATA_GRID_SOIL = "france/montpellier_100_2154_soil.asc"
@@ -117,9 +120,10 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
     # select paths 
     paths = PATHS[config["mode"]]
 
-    soil_db_path = paths["path-to-data-dir"] + DATA_SOIL_DB
-    subprocess.run(["wget", "-O", soil_db_path, SOIL_DB_URL], check=True)
-    print("Downloaded soil db successfully.")
+    # soil_db_path = paths["path-to-data-dir"] + DATA_SOIL_DB
+    soil_db_path = paths["path-to-projects-dir"] + DATA_SOIL_DB
+    # subprocess.run(["wget", "-O", soil_db_path, SOIL_DB_URL], check=True)
+    # print("Downloaded soil db successfully.")
 
     # open soil db connection
     soil_db_con = sqlite3.connect(soil_db_path)
