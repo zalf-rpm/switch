@@ -174,5 +174,3 @@ run-id,use_vernalisation_fix,sowing-date,harvest-date,crop-id,sim.json,crop.json
 173,True,fixed,auto,PO_sfix_hauto,sim_fr.json,crop_France.json,site_France.json,False,,,,,,,,2020-02-01,2020-11-01,False,False,True,True,True,False,True,True,False,True,False,False,False,,,0.82,,historic_runs,1,,,,,,MO_CType3_2020_2154.asc
 174,True,fixed,auto,PO_sfix_hauto,sim_fr.json,crop_France.json,site_France.json,False,,,,,,,,2021-02-01,2021-11-01,False,False,True,True,True,False,True,True,False,True,False,False,False,,,0.82,,historic_runs,1,,,,,,MO_CType3_2021_2154.asc
 175,True,fixed,auto,PO_sfix_hauto,sim_fr.json,crop_France.json,site_France.json,False,,,,,,,,2022-02-01,2022-11-01,False,False,True,True,True,False,True,True,False,True,False,False,False,,,0.82,,historic_runs,1,,,,,,MO_CType3_2022_2154.asc
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
