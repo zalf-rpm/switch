@@ -47,7 +47,8 @@
 				["N2O","SUM"],
 				["NEE","SUM"],
 				["NLeach","SUM"],
-				["Ra","SUM"]
+				["Ra","SUM"],
+				["NFert","SUM"]
 			]
 		]
 	},

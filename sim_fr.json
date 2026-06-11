@@ -43,7 +43,8 @@
 				["Crop", "FIRST"],
 				["Yield","LAST"],
 				["N2O","SUM"],
-				["NEE","SUM"]
+				["NEE","SUM"],
+				["NFert","SUM"]
 			]
 		]
 	},
