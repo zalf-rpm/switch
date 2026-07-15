@@ -350,7 +350,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 orig_params = copy.deepcopy(env_template["cropRotation"][0]["worksteps"][0]["crop"]["cropParams"]["cultivar"])
 
         for srow in range(0, srows):
-            print(srow, end=", ")
+            # print(srow, end=", ")
 
             if srow < int(config["start-row"]):
                 continue
@@ -588,7 +588,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 env_template["pathToClimateCSV"] = \
                     paths["monica-path-to-climate-dir"] + \
                     f"dwd/csvs/germany_ubn_1951-01-01_to_2024-08-30/{crow}/daily_mean_RES1_C{ccol}R{crow}.csv.gz"
-                print("pathToClimateCSV:", env_template["pathToClimateCSV"])
+                # print("pathToClimateCSV:", env_template["pathToClimateCSV"])
 
                 #if DEBUG_WRITE_CLIMATE:
                 #    listOfClimateFiles.add(subpath_to_csv)
@@ -616,7 +616,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
 
                 if not DEBUG_DONOT_SEND:
                     socket.send_json(env_template)
-                    print("sent env ", sent_env_count, " customId: ", env_template["customId"])
+                    # print("sent env ", sent_env_count, " customId: ", env_template["customId"])
 
                 sent_env_count += 1
 

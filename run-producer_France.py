@@ -314,7 +314,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         # cs__.write("row,col,center_25832_etrs89-utm32n_r,center_25832_etrs89-utm32n_h,center_lat,center_lon\n")
 
         for srow in range(0, srows):
-            print(srow, end=", ")
+            # print(srow, end=", ")
 
             if srow < int(config["start-row"]):
                 continue
@@ -488,7 +488,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
                 ##### climate data
                 env_template["pathToClimateCSV"] = \
                     paths["monica-path-to-climate-dir"] + f"montpellier/version5/{int(ccol)}.csv"
-                print("pathToClimateCSV:", env_template["pathToClimateCSV"])
+                # print("pathToClimateCSV:", env_template["pathToClimateCSV"])
 
                 #if DEBUG_WRITE_CLIMATE:
                 #    listOfClimateFiles.add(subpath_to_csv)
