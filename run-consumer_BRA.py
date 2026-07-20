@@ -15,22 +15,17 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 import csv
-from datetime import datetime
-import gc
-import json
 import numpy as np
 import os
-from pyproj import CRS, Transformer
-import sqlite3
+from pyproj import CRS
 import sys
-import timeit
-import types
 import zmq
+import tarfile
+import shutil
 
 import monica_io3
-import soil_io3
 import monica_run_lib as Mrunlib
 
 PATHS = {
@@ -422,6 +417,15 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                             and ((data["end_row"] < 0 and data["next-row"] > data["nrows"] - 1)
                                  or (0 <= data["end_row"] < data["next-row"])):
                         process_message.setup_count += 1
+
+                        folder = os.path.join(config["out"], str(setup_id))
+                        archive = folder + ".tar.gz"
+
+                        if os.path.isdir(folder):
+                            with tarfile.open(archive, "w:gz") as tar:
+                                tar.add(folder, arcname=os.path.basename(folder))
+
+                            shutil.rmtree(folder)
 
         elif write_normal_output_files:
             if msg.get("type", "") in ["jobs-per-cell", "no-data", "setup_data"]:
