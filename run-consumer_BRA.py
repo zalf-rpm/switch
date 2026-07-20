@@ -315,7 +315,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
 
                 if sdata["no_of_envs_expected"] == sdata["envs_received"]:
                     path_to_out_dir = config["out"]  # + str(setup_id) + "/"
-                    print(path_to_out_dir)
+                    # print(path_to_out_dir)
                     if not sdata["out_dir_exists"]:
                         if os.path.isdir(path_to_out_dir) and os.path.exists(path_to_out_dir):
                             sdata["out_dir_exists"] = True
@@ -382,7 +382,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
 
                     path_to_out_dir = config["out"] + str(setup_id) + "/"
                     path_to_csv_out_dir = config["csv-out"] + str(setup_id) + "/"
-                    print(path_to_out_dir)
+                    # print(path_to_out_dir)
                     if not data["out_dir_exists"]:
                         if os.path.isdir(path_to_out_dir) and os.path.exists(path_to_out_dir):
                             data["out_dir_exists"] = True
