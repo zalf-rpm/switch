@@ -365,7 +365,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
 
                 debug_msg = "wrote row: " + str(data["next-row"]) + " next-row: " + str(
                     data["next-row"] + 1) + " rows unwritten: " + str(list(data["row-col-data"].keys()))
-                print(debug_msg)
+                # print(debug_msg)
                 # debug_file.write(debug_msg + "\n")
 
                 data["next-row"] += 1  # move to next row (to be written)

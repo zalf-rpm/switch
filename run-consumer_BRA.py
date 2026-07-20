@@ -366,7 +366,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
                             + " cols@row to go: " + str(data["datacell-count"][row]) + "@" + str(
                     row) + " cells_per_row: " + str(datacells_per_row[row])  # \
                 # + " rows unwritten: " + str(data["row-col-data"].keys())
-                print(debug_msg)
+                # print(debug_msg)
                 # debug_file.write(debug_msg + "\n")
                 if is_nodata:
                     data["row-col-data"][row][col] = -9999
@@ -408,7 +408,7 @@ def run_consumer(leave_after_finished_run=True, server={"server": None, "port": 
 
                     debug_msg = "wrote row: " + str(data["next-row"]) + " next-row: " + str(
                         data["next-row"] + 1) + " rows unwritten: " + str(list(data["row-col-data"].keys()))
-                    print(debug_msg)
+                    # print(debug_msg)
                     # debug_file.write(debug_msg + "\n")
 
                     data["next-row"] += 1  # move to next row (to be written)
