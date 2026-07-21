@@ -126,13 +126,13 @@
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
 				},
 				{
-					"date":"0000-01-20",
+					"date":"0001-01-20",
 					"type": "MineralFertilization",
 					"amount": [80.0, "kg N"],
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
 				},
 				{
-					"date":"0000-02-19",
+					"date":"0001-02-19",
 					"type": "MineralFertilization",
 					"amount": [40.0, "kg N"],
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
@@ -224,7 +224,7 @@
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
 				  },
 				  {
-					"date":"0000-02-06",
+					"date":"0001-02-06",
 					"type": "MineralFertilization",
 					"amount": [74.0, "kg N"],
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
@@ -252,7 +252,7 @@
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
 				  },
 				  {
-					"date":"0000-02-06",
+					"date":"0001-02-06",
 					"type": "MineralFertilization",
 					"amount": [90.0, "kg N"],
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
@@ -280,7 +280,7 @@
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
 				  },
 				  {
-					"date":"0000-02-06",
+					"date":"0001-02-06",
 					"type": "MineralFertilization",
 					"amount": [74.2, "kg N"],
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
@@ -342,7 +342,7 @@
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
 				  },
 				{
-					"date":"0000-01-07",
+					"date":"0001-01-07",
 					"type": "MineralFertilization",
 					"amount": [40.0, "kg N"],
 					"partition": ["include-from-file", "mineral-fertilisers/AN.json"]
