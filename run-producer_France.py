@@ -101,7 +101,7 @@ def run_producer(server={"server": None, "port": None}, shared_id=None):
         "end-row": "-1",
         "path_to_dem_grid": "",
         "sim.json": "sim_fr.json",
-        "crop.json": "crop_MineralFert_France.json",
+        "crop.json": "crop_MineralFert_France_80.json",
         "site.json": "site_France.json",
         "setups-file": "sim_setups_france_LF.csv",
         "run-setups": "[1]",
