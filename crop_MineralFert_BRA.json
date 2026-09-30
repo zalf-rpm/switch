@@ -146,14 +146,6 @@
 					"max-3d-precip-sum": 2,
 					"max-curr-day-precip": 0.1,
 					"harvest-time": "maturity"
-				},
-				{
-					"type": "OrganicFertilization",
-					"days": 1,
-					"after": "Harvest",
-					"amount": [15000, "kg N"],
-					"parameters": ["include-from-file", "organic-fertilisers/CAM.json"],
-					"incorporation": true
 				}
 			]
 		}],
@@ -384,15 +376,7 @@
 					"max-3d-precip-sum": 5,
 					"max-curr-day-precip": 0.5,
 					"harvest-time": "maturity"
-				},
-				{
-					"type": "OrganicFertilization",
-					"days": 1,
-					"after": "Harvest",
-					"amount": [15000, "kg"],
-					"parameters": ["include-from-file", "organic-fertilisers/CAM.json"],
-					"incorporation": true
-				  }
+				}
 			]
 		}],
 		"GM_sfix_hauto": [{
@@ -420,15 +404,7 @@
 					"max-3d-precip-sum": 5,
 					"max-curr-day-precip": 0.5,
 					"harvest-time": "maturity"
-				},
-				{
-					"type": "OrganicFertilization",
-					"days": 1,
-					"after": "Harvest",
-					"amount": [15000, "kg"],
-					"parameters": ["include-from-file", "organic-fertilisers/CAM.json"],
-					"incorporation": true
-				  }
+				}
 			]
 		}],		
 		"SU_sfix_hauto": [{
