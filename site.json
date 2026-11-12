@@ -14,7 +14,22 @@
     "LeachingDepth": 2.0,
     "WindSpeedHeight": 2.5
   },
-  "SoilOrganicParameters": ["include-from-file", "general/soil-organic.json"],
+  "SoilOrganicParameters": {
+        "=": ["include-from-file", "general/soil-organic.json"],
+        "AOM_FastUtilizationEfficiency": [0.27, "%"],
+        "AOM_SlowUtilizationEfficiency": [0.16, "%"],
+        "LimitClayEffect": [0.25, "%"],
+        "QTenFactor": [3.15, "Q10"],
+        "PartSMB_Fast_to_SOM_Fast": [0.66, "%"],
+        "PartSMB_Slow_to_SOM_Fast": [0.61, "%"],
+        "SMB_FastDeathRateStandard": [0.12, "d-1"],
+        "SMB_SlowDeathRateStandard": [0.0054, "d-1"],
+        "SMB_UtilizationEfficiency": [0.43, "d-1"],
+        "SOM_FastDecCoeffStandard": [0.000086, "d-1"],
+        "SOM_SlowDecCoeffStandard": [0.000013, "d-1"],
+        "SOM_FastUtilizationEfficiency": [0.35, "%"],
+        "SOM_SlowUtilizationEfficiency": [0.49, "%"]
+},
   "SoilTransportParameters": ["include-from-file", "general/soil-transport.json"],
   "SoilMoistureParameters": ["include-from-file", "general/soil-moisture.json"]
 }
